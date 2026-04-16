@@ -3,12 +3,11 @@ import { Upload, FileText, AlertCircle, X, Loader2, CheckCircle2, Server, Downlo
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import PresetCompressionButtons from './PresetCompressionButtons.jsx';
-import CompressionPreview from './CompressionPreview.jsx';
 import { compressPdfClient } from '@/lib/pdf-compressor-client.js';
 
 const FileUploadZone = ({ onCompressionComplete }) => {
   const [file, setFile] = useState(null);
-  const [preset, setPreset] = useState('recommended');
+  const [preset, setPreset] = useState('aggressive');
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionStage, setCompressionStage] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -127,7 +126,7 @@ const FileUploadZone = ({ onCompressionComplete }) => {
   const resetFlow = () => {
     setFile(null);
     setError('');
-    setPreset('recommended');
+    setPreset('aggressive');
   };
 
   if (isCompressing) {
@@ -236,8 +235,6 @@ const FileUploadZone = ({ onCompressionComplete }) => {
         </div>
 
         <PresetCompressionButtons value={preset} onChange={setPreset} />
-        
-        <CompressionPreview fileSize={file.size} preset={preset} />
 
         <div className="flex flex-col sm:flex-row gap-4 pt-4">
           <Button 

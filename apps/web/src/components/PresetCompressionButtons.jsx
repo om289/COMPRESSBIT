@@ -6,23 +6,23 @@ const presets = [
   { 
     id: 'good', 
     label: 'Good', 
-    desc: '30-40% reduction',
+    desc: 'Normal compression',
     icon: Leaf,
-    details: 'Best for preserving image quality'
+    details: 'Best for preserving document elements and structure'
   },
   { 
-    id: 'recommended', 
-    label: 'Recommended', 
-    desc: '50-60% reduction',
+    id: 'aggressive', 
+    label: 'Aggressive', 
+    desc: 'High compression',
     icon: Zap,
-    details: 'Perfect balance of size and quality'
+    details: 'Good balance of size reduction and quality'
   },
   { 
     id: 'extreme', 
     label: 'Extreme', 
-    desc: '70-75% reduction',
+    desc: 'Maximum compression',
     icon: Flame,
-    details: 'Maximum compression for sharing'
+    details: 'Smallest possible size by aggressive flattening'
   }
 ];
 
