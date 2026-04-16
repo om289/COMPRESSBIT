@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import PresetCompressionButtons from './PresetCompressionButtons.jsx';
 import CompressionPreview from './CompressionPreview.jsx';
-import apiServerClient from '@/lib/apiServerClient.js';
+import { compressPdfClient } from '@/lib/pdf-compressor-client.js';
 
 const FileUploadZone = ({ onCompressionComplete }) => {
   const [file, setFile] = useState(null);
@@ -17,9 +17,9 @@ const FileUploadZone = ({ onCompressionComplete }) => {
   const fileInputRef = useRef(null);
 
   const stages = [
-    { icon: Upload, text: 'Uploading to server...' },
+    { icon: FileText, text: 'Reading document...' },
     { icon: Server, text: 'Applying compression algorithms...' },
-    { icon: DownloadCloud, text: 'Retrieving optimized file...' }
+    { icon: CheckCircle2, text: 'Finalizing optimization...' }
   ];
 
   const validateFile = (selectedFile) => {
@@ -77,20 +77,21 @@ const FileUploadZone = ({ onCompressionComplete }) => {
     }, 400);
 
     try {
-      const response = await apiServerClient.fetch('/compress-pdf', {
-        method: 'POST',
-        body: formData
-      });
+      setCompressionStage(0);
+      setProgress(10);
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Compression failed (${response.status})`);
-      }
+      // Brief delay to show reading stage
+      await new Promise(r => setTimeout(r, 800));
+      
+      setCompressionStage(1);
+      setProgress(30);
 
+      const compressedPdfBytes = await compressPdfClient(file, preset);
+      
+      setProgress(80);
       setCompressionStage(2);
-      setProgress(90);
 
-      const blob = await response.blob();
+      const blob = new Blob([compressedPdfBytes], { type: 'application/pdf' });
       
       clearInterval(progressInterval);
       setProgress(100);
@@ -99,7 +100,7 @@ const FileUploadZone = ({ onCompressionComplete }) => {
       const compressedSize = blob.size;
       const actualPercentage = ((originalSize - compressedSize) / originalSize) * 100;
 
-      // Brief delay to show 100% completion in the UI
+      // Brief delay to show 100% completion
       setTimeout(() => {
         onCompressionComplete({
           originalSize,
