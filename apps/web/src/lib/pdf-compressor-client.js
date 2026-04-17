@@ -60,12 +60,10 @@ export const compressPdfClient = async (file, compressionLevel = 'aggressive') =
   });
 
   // Determine scaling and quality to control final size vs visual fidelity
-  // To keep black text the same (crisp size/shape), we lock the scale to 1.0x for all lossy tiers.
-  // We offset the size completely by using extremely low JPEG qualities to heavily compress blank space.
-  // Aggressive: 1.0x resolution, 0.45 jpeg quality
-  // Extreme: 1.0x resolution, 0.15 jpeg quality
-  const scale = 1.0;
-  const imageQuality = normalizedLevel === 'extreme' ? 0.15 : 0.45;
+  // Aggressive: 1.0x resolution, 0.50 jpeg quality (Balances readability with high compression)
+  // Extreme: 0.75x resolution, 0.25 jpeg quality (Maximum compression, will look pixelated but hits >50% reliably)
+  const scale = normalizedLevel === 'extreme' ? 0.75 : 1.0;
+  const imageQuality = normalizedLevel === 'extreme' ? 0.25 : 0.5;
 
   for (let pageNum = 1; pageNum <= numPages; pageNum++) {
     const page = await pdfDocument.getPage(pageNum);
