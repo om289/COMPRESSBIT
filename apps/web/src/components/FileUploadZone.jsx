@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, AlertCircle, X, Loader2, CheckCircle2, Server, DownloadCloud } from 'lucide-react';
+import { Upload, FileText, AlertCircle, X, Loader2, CheckCircle2, Server, DownloadCloud, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import PresetCompressionButtons from './PresetCompressionButtons.jsx';
 import { compressPdfClient } from '@/lib/pdf-compressor-client.js';
 
-const FileUploadZone = ({ onCompressionComplete }) => {
+const FileUploadZone = ({ onCompressionComplete, type = 'pdf', compressionFn }) => {
   const [file, setFile] = useState(null);
   const [preset, setPreset] = useState('aggressive');
   const [isCompressing, setIsCompressing] = useState(false);
@@ -15,17 +15,30 @@ const FileUploadZone = ({ onCompressionComplete }) => {
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
 
+  const isImage = type === 'image' || type === 'png' || type === 'jpg';
+  const typeLabel = isImage ? 'Image' : 'PDF';
+  const acceptTypes = isImage ? 'image/jpeg,image/png,image/webp' : 'application/pdf';
+  const fileExtension = isImage ? '.jpg, .png, .webp' : '.pdf';
+
   const stages = [
-    { icon: FileText, text: 'Reading document...' },
+    { icon: FileText, text: `Reading ${typeLabel.toLowerCase()}...` },
     { icon: Server, text: 'Applying compression algorithms...' },
     { icon: CheckCircle2, text: 'Finalizing optimization...' }
   ];
 
   const validateFile = (selectedFile) => {
-    if (selectedFile.type !== 'application/pdf') {
-      setError('Please upload a valid PDF file');
-      return false;
+    if (isImage) {
+      if (!selectedFile.type.startsWith('image/')) {
+        setError('Please upload a valid image file (JPG, PNG, WebP)');
+        return false;
+      }
+    } else {
+      if (selectedFile.type !== 'application/pdf') {
+        setError('Please upload a valid PDF file');
+        return false;
+      }
     }
+    
     if (selectedFile.size > 100 * 1024 * 1024) {
       setError('File size must be less than 100MB');
       return false;
@@ -56,11 +69,6 @@ const FileUploadZone = ({ onCompressionComplete }) => {
     setProgress(0);
     setCompressionStage(0);
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('compressionLevel', preset);
-
-    // Simulate progress since standard fetch doesn't support upload progress
     const progressInterval = setInterval(() => {
       setProgress(p => {
         if (p < 40) {
@@ -79,34 +87,36 @@ const FileUploadZone = ({ onCompressionComplete }) => {
       setCompressionStage(0);
       setProgress(10);
 
-      // Brief delay to show reading stage
       await new Promise(r => setTimeout(r, 800));
       
       setCompressionStage(1);
       setProgress(30);
 
-      const compressedPdfBytes = await compressPdfClient(file, preset);
+      // Call the passed compression function or default to PDF if not provided
+      const compressedData = await (compressionFn ? compressionFn(file, preset) : compressPdfClient(file, preset));
       
       setProgress(80);
       setCompressionStage(2);
 
-      const blob = new Blob([compressedPdfBytes], { type: 'application/pdf' });
+      // Result handling
+      const resultBlob = compressedData instanceof Blob 
+        ? compressedData 
+        : new Blob([compressedData], { type: isImage ? file.type : 'application/pdf' });
       
       clearInterval(progressInterval);
       setProgress(100);
 
       const originalSize = file.size;
-      const compressedSize = blob.size;
+      const compressedSize = resultBlob.size;
       const actualPercentage = ((originalSize - compressedSize) / originalSize) * 100;
 
-      // Brief delay to show 100% completion
       setTimeout(() => {
         onCompressionComplete({
           originalSize,
           compressedSize,
           actualPercentage: Number(actualPercentage.toFixed(2)),
           fileName: file.name,
-          compressedData: blob,
+          compressedData: resultBlob,
           preset
         });
       }, 600);
@@ -114,11 +124,7 @@ const FileUploadZone = ({ onCompressionComplete }) => {
     } catch (err) {
       clearInterval(progressInterval);
       console.error('Compression error:', err);
-      let errorMsg = err.message;
-      if (err.message === 'Failed to fetch') {
-        errorMsg = 'Network error. Please check your connection and try again.';
-      }
-      setError(errorMsg);
+      setError(err.message || 'Compression failed. Please try again.');
       setIsCompressing(false);
     }
   };
@@ -159,7 +165,7 @@ const FileUploadZone = ({ onCompressionComplete }) => {
 
           <div className="space-y-3 w-full">
             <h3 className="text-xl font-bold text-foreground">
-              {progress === 100 ? 'Processing complete' : 'Optimizing document'}
+              {progress === 100 ? 'Processing complete' : `Optimizing ${typeLabel.toLowerCase()}`}
             </h3>
             <p className="text-sm text-muted-foreground h-5 transition-all">
               {stages[compressionStage]?.text || 'Finalizing...'}
@@ -221,7 +227,7 @@ const FileUploadZone = ({ onCompressionComplete }) => {
         <div className="flex items-center justify-between p-4 bg-muted/50 border border-border rounded-2xl">
           <div className="flex items-center space-x-4 min-w-0">
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <FileText className="w-6 h-6 text-primary" />
+              {isImage ? <ImageIcon className="w-6 h-6 text-primary" /> : <FileText className="w-6 h-6 text-primary" />}
             </div>
             <div className="truncate pr-4">
               <p className="text-base font-semibold text-foreground truncate">{file.name}</p>
@@ -242,7 +248,7 @@ const FileUploadZone = ({ onCompressionComplete }) => {
             className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 text-lg h-14 shadow-lg shadow-primary/20 active:scale-[0.98]"
             onClick={handleCompress}
           >
-            Compress PDF
+            Compress {typeLabel}
           </Button>
           <Button 
             size="lg" 
@@ -281,7 +287,7 @@ const FileUploadZone = ({ onCompressionComplete }) => {
         <input
           ref={fileInputRef}
           type="file"
-          accept=".pdf,application/pdf"
+          accept={acceptTypes}
           onChange={(e) => handleFileSelect(e.target.files[0])}
           className="hidden"
         />
@@ -289,11 +295,11 @@ const FileUploadZone = ({ onCompressionComplete }) => {
         <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300 ${
           isDragging ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-muted text-muted-foreground shadow-sm'
         }`}>
-          {isDragging ? <FileText className="w-10 h-10" /> : <Upload className="w-10 h-10" />}
+          {isDragging ? (isImage ? <ImageIcon className="w-10 h-10" /> : <FileText className="w-10 h-10" />) : <Upload className="w-10 h-10" />}
         </div>
         
         <h3 className="text-2xl font-bold text-foreground mb-2">
-          {isDragging ? 'Drop your PDF here' : 'Drag and drop your PDF'}
+          {isDragging ? `Drop your ${typeLabel} here` : `Drag and drop your ${typeLabel}`}
         </h3>
         <p className="text-base text-muted-foreground mb-8">
           or click to browse your device
@@ -304,15 +310,15 @@ const FileUploadZone = ({ onCompressionComplete }) => {
           variant="outline"
           className="pointer-events-none bg-background shadow-sm px-8 h-12"
         >
-          Select PDF file
+          Select {typeLabel} file
         </Button>
         
         <p className="text-sm text-muted-foreground mt-6 font-medium">
-          Maximum file size: 100MB
+          Supports: {fileExtension} (Max 100MB)
         </p>
       </motion.div>
     </div>
   );
 };
 
-export default FileUploadZone;
+export default FileUploadZone;
