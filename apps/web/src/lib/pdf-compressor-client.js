@@ -1,10 +1,10 @@
 import * as pdfjsLib from 'pdfjs-dist';
-import PdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?worker';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { jsPDF } from 'jspdf';
 import { PDFDocument } from 'pdf-lib';
 
 // Use Vite's native Web Worker loader to bypass all URL pathing issues completely
-pdfjsLib.GlobalWorkerOptions.workerPort = new PdfWorker();
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 /**
  * Compresses a PDF file entirely in the browser.
@@ -46,24 +46,16 @@ export const compressPdfClient = async (file, compressionLevel = 'aggressive') =
 
   // =========================================================
   // AGGRESSIVE & EXTREME TIER: Lossy Rasterization Pipeline
-  // Uses pdfjs-dist to render pages to canvas, then jsPDF to rebuild (50-75% reduction)
+  // Uses pdfjs-dist to render pages to canvas, then pdf-lib to rebuild (50-75% reduction)
   // =========================================================
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
   const pdfDocument = await loadingTask.promise;
   const numPages = pdfDocument.numPages;
 
-  const pdf = new jsPDF({
-    orientation: 'p',
-    unit: 'pt',
-    format: 'a4',
-    compress: true
-  });
+  const newPdf = await PDFDocument.create();
 
   // Determine scaling and quality to control final size vs visual fidelity
   // To keep black text the same (crisp size/shape), we lock the scale to 1.0x for all lossy tiers.
-  // We offset the size completely by using extremely low JPEG qualities to heavily compress blank space.
-  // Aggressive: 1.0x resolution, 0.45 jpeg quality
-  // Extreme: 1.0x resolution, 0.15 jpeg quality
   const scale = 1.0;
   const imageQuality = normalizedLevel === 'extreme' ? 0.15 : 0.45;
 
@@ -85,27 +77,23 @@ export const compressPdfClient = async (file, compressionLevel = 'aggressive') =
     await page.render(renderContext).promise;
 
     // Extract highly compressed JPEG data from the canvas
-    const imgData = canvas.toDataURL('image/jpeg', imageQuality);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', imageQuality));
+    const jpegBytes = new Uint8Array(await blob.arrayBuffer());
 
-    // Calculate dimensions to place it back into the jsPDF document
-    // We use the 1.0 scale viewport for the actual physical PDF document sizing
+    // Calculate dimensions to place it back into the pdf-lib document
     const originalViewport = page.getViewport({ scale: 1.0 });
     const width = originalViewport.width;
     const height = originalViewport.height;
 
-    // Setup the page in jsPDF (skip adding for the first implicit page)
-    if (pageNum === 1) {
-      // Create first page with custom dimensions if needed
-      // jsPDF initializes with A4, but our PDF might have different dimensions
-      pdf.setPage(1);
-    } else {
-      pdf.addPage([width, height], width > height ? 'l' : 'p');
-      pdf.setPage(pageNum);
-    }
-
-    // Embed the compressed image onto the PDF page
-    // Using 'FAST' compression within jsPDF mapping
-    pdf.addImage(imgData, 'JPEG', 0, 0, width, height, undefined, 'FAST');
+    // Embed standard JPEG and draw on a custom-sized page to prevent orientation/scaling crops
+    const jpegImage = await newPdf.embedJpg(jpegBytes);
+    const newPage = newPdf.addPage([width, height]);
+    newPage.drawImage(jpegImage, {
+      x: 0,
+      y: 0,
+      width: width,
+      height: height,
+    });
 
     // Memory clean up
     page.cleanup();
@@ -114,8 +102,8 @@ export const compressPdfClient = async (file, compressionLevel = 'aggressive') =
   }
 
   // Generate final blob bytes
-  const finalArrayBuffer = pdf.output('arraybuffer');
-  return new Uint8Array(finalArrayBuffer);
+  const finalBytes = await newPdf.save();
+  return finalBytes;
 };
 
 export default compressPdfClient;

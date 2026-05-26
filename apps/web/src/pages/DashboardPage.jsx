@@ -42,20 +42,20 @@ const DashboardPage = () => {
     {
       id: 'merge',
       title: 'PDF Merger',
-      description: 'Combine multiple PDF files into a single document. Coming soon.',
+      description: 'Combine multiple PDF files into a single document. Zero quality loss, 100% private.',
       icon: Layers,
-      path: '#',
+      path: '/pdf/merge',
       color: 'bg-purple-500/10 text-purple-500',
-      active: false
+      active: true
     },
     {
       id: 'encrypt',
       title: 'File Encryptor',
-      description: 'Secure your files with client-side AES-256 encryption. Coming soon.',
+      description: 'Secure your files with military-grade client-side AES-256 encryption. 100% private.',
       icon: Lock,
-      path: '#',
+      path: '/encrypt',
       color: 'bg-emerald-500/10 text-emerald-500',
-      active: false
+      active: true
     }
   ];
 

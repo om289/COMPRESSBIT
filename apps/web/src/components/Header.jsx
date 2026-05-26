@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, FileText, ChevronDown, Image as ImageIcon, LayoutDashboard } from 'lucide-react';
+import { Menu, X, FileText, ChevronDown, Image as ImageIcon, LayoutDashboard, Layers, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
@@ -14,7 +14,9 @@ const Header = () => {
   const navLinks = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'PDF Compressor', path: '/pdf', icon: FileText },
+    { name: 'PDF Merger', path: '/pdf/merge', icon: Layers },
     { name: 'Image Compressor', path: '/image', icon: ImageIcon },
+    { name: 'File Encryptor', path: '/encrypt', icon: Lock },
   ];
 
   const handleNavClick = (path) => {

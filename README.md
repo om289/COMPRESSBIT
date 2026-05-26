@@ -26,12 +26,22 @@ Most client-side PDF compressors only strip metadata, which results in a meager 
 *   **Step 3. Lossy Extraction**: The visual canvas data is extracted directly as a highly compressed JPEG string. Because it relies on visual data, all text is essentially "flattened", making it incredibly hard to reverse-engineer while massively shedding structural bloat.
 *   **Step 4. PDF Assembly**: Finally, `jsPDF` is initialized to create a fresh, clean PDF container, placing the optimized JPEG pages exactly onto matching aspect-ratio pages.
 
-### 2. The Universal Image Engine (`/png`, `/jpg`)
+### 2. The Universal Image Engine (`/png`, `/jpg`, `/image`, `/images`)
 The image engine dynamically adapts to JPG, PNG, and WebP inputs, standardizing and crushing them to save bandwidth.
 
 *   **Step 1. Blob to Canvas**: The raw file blob is streamed into an `Image()` object and painted onto a 2D canvas structure.
 *   **Step 2. Contextual Resizing**: Depending on the tier selected, the engine checks the original bounding box. If the image is incredibly large (e.g., 4K resolution), it mathematically calculates a proportional down-scaling limit (e.g., locking it to a max of 1280px wide).
 *   **Step 3. Format Normalization**: Transparent PNGs are given a solid white background and converted to mathematically tighter JPGs under Extreme compression to maximize space saving.
+
+### 3. The PDF Merger Engine (`/pdf/merge`)
+Combines multiple PDF documents completely client-side with visual drag-and-drop sorting.
+*   **Zero-Loss Splicing**: Splicing utilizes `pdf-lib`'s `copyPages()` method. Rather than rendering to a canvas, pages are extracted as vector assets and appended to a new container. This preserves layout crispness, selectable text, and links.
+*   **Interactive Sorter**: The UI allows dragging items to define document order before compilation.
+
+### 4. The Cryptography Engine (`/encrypt`)
+Secures any file format locally in the browser utilizing the native Web Crypto API.
+*   **PBKDF2 Key Derivation**: Derives a cryptographically strong 256-bit key from passwords using a random salt and 100,000 iterations (SHA-256).
+*   **AES-256-GCM Encryption**: Encrypts file data and metadata (original name, mime-type, and size) using Galois/Counter Mode for confidentiality and integrity verification. Output is packaged into a download-ready `.enc` container.
 
 ---
 
@@ -80,3 +90,12 @@ CompressBit uses `npm` workspaces. To run it locally:
    ```
 
 *Ensure you use Node.js v18+ for optimal compatibility across build pipelines.*
+
+---
+
+## 🌐 GitHub Pages Clean URL Routing
+
+Because GitHub Pages does not natively support HTML5 `pushState` routing (it serves a 404 for clean paths like `/pdf` or `/encrypt` on reload), CompressBit employs a lightweight redirection mechanism:
+1. **Redirection Payload (`404.html`)**: When GitHub Pages detects a missing static path, it serves the custom `404.html` containing a script that wraps the current path into a query parameter (e.g. `/?/encrypt`) and redirects back to `/`.
+2. **Resolution (`index.html`)**: A small script inside the `<head>` of the main `index.html` parses this parameter, restores the clean path history via `window.history.replaceState()`, and exposes it back to React Router before the app mounts.
+
