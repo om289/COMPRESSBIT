@@ -104,7 +104,7 @@ export const BlogPostPage = () => {
             </div>
 
             {/* Article Container */}
-            <article className="relative bg-card/40 backdrop-blur-md border border-border/80 rounded-3xl p-6 md:p-12 shadow-xl shadow-primary/2">
+            <article className="relative bg-card/40 border border-border/80 rounded-3xl p-6 md:p-12 shadow-xl shadow-primary/2">
               
               {/* Meta Tags / Badges */}
               <div className="flex flex-wrap gap-2 mb-6">

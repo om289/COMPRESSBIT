@@ -275,7 +275,7 @@ const PdfMergePage = () => {
         </section>
 
         {/* Merge Section */}
-        <section id="merge" className="py-12 bg-card/30 border-y border-border backdrop-blur-sm">
+        <section id="merge" className="py-12 bg-card/30 border-y border-border">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             
             {/* Result view */}

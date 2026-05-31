@@ -256,7 +256,7 @@ const FileEncryptPage = () => {
             </div>
 
             {/* Main Interactive Card */}
-            <Card className="bg-card/50 border-border backdrop-blur-sm p-6 md:p-8 rounded-3xl shadow-xl">
+            <Card className="bg-card/50 border-border p-6 md:p-8 rounded-3xl shadow-xl">
               <AnimatePresence mode="wait">
                 {activeTab === 'encrypt' ? (
                   <motion.div

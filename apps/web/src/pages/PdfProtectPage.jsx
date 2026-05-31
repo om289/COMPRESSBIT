@@ -220,7 +220,7 @@ const PdfProtectPage = () => {
             </div>
 
             {/* Interactive Card */}
-            <Card className="bg-card/50 border-border backdrop-blur-sm p-6 md:p-8 rounded-3xl shadow-xl max-w-2xl mx-auto">
+            <Card className="bg-card/50 border-border p-6 md:p-8 rounded-3xl shadow-xl max-w-2xl mx-auto">
               <AnimatePresence mode="wait">
                 
                 {/* Upload or Configure Flow */}
