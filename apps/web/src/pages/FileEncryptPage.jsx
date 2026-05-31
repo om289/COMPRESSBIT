@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -7,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { toast } from 'sonner';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 import { encryptFile, decryptFile } from '@/lib/file-encryptor-client.js';
@@ -34,6 +36,26 @@ const getPasswordStrength = (pwd) => {
 
 const FileEncryptPage = () => {
   const [activeTab, setActiveTab] = useState('encrypt'); // 'encrypt' | 'decrypt'
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state?.droppedFiles && location.state.droppedFiles.length > 0) {
+      const file = location.state.droppedFiles[0];
+      if (file.name.endsWith('.enc')) {
+        setActiveTab('decrypt');
+        setDecFile(file);
+        setDecResult(null);
+        setDecError('');
+      } else {
+        setActiveTab('encrypt');
+        setEncFile(file);
+        setEncResult(null);
+        setEncError('');
+      }
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
   
   // Encrypt State
   const [encFile, setEncFile] = useState(null);
@@ -121,8 +143,11 @@ const FileEncryptPage = () => {
         size: res.blob.size,
         isStandardPdf: res.isStandardPdf
       });
+      toast.success(`Successfully encrypted ${encFile.name}!`);
     } catch (err) {
-      setEncError(err.message || 'Encryption failed.');
+      const errMsg = err.message || 'Encryption failed.';
+      setEncError(errMsg);
+      toast.error(errMsg);
     } finally {
       setIsEncrypting(false);
     }
@@ -138,8 +163,11 @@ const FileEncryptPage = () => {
       await new Promise(r => setTimeout(r, 600));
       const res = await decryptFile(decFile, decPassword);
       setDecResult(res);
+      toast.success(`Successfully decrypted ${decFile.name}!`);
     } catch (err) {
-      setDecError(err.message || 'Decryption failed. Please check your password.');
+      const errMsg = err.message || 'Decryption failed. Please check your password.';
+      setDecError(errMsg);
+      toast.error(errMsg);
     } finally {
       setIsDecrypting(false);
     }
@@ -156,6 +184,7 @@ const FileEncryptPage = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast.success(`Downloaded ${result.name}`);
   };
 
   // Resets
@@ -164,6 +193,7 @@ const FileEncryptPage = () => {
     setEncPassword('');
     setEncResult(null);
     setEncError('');
+    toast.info('Reset encrypt flow');
   };
 
   const resetDecrypt = () => {
@@ -171,6 +201,7 @@ const FileEncryptPage = () => {
     setDecPassword('');
     setDecResult(null);
     setDecError('');
+    toast.info('Reset decrypt flow');
   };
 
   return (
@@ -180,7 +211,7 @@ const FileEncryptPage = () => {
         <meta name="description" content="Secure files locally in your browser using AES-256 client-side encryption. Completely private, no uploads, no cloud storage." />
       </Helmet>
 
-      <div className="dark min-h-screen bg-background text-foreground flex flex-col justify-between">
+      <div className="min-h-screen bg-background text-foreground flex flex-col justify-between pb-20 md:pb-0">
         <Header />
 
         <main className="flex-grow pt-28 pb-16">

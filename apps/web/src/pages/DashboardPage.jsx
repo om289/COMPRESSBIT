@@ -10,7 +10,8 @@ import {
   Layers, 
   ArrowRight,
   Sparkles,
-  Github
+  Github,
+  Scissors
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -22,7 +23,7 @@ import { Link } from 'react-router-dom';
 const DashboardPage = () => {
   const tools = [
     {
-      id: 'pdf',
+      id: 'pdf-compress',
       title: 'PDF Compressor',
       description: 'Optimize PDF files with advanced rasterization. Perfect for large documents.',
       icon: FileText,
@@ -31,7 +32,34 @@ const DashboardPage = () => {
       active: true
     },
     {
-      id: 'image',
+      id: 'pdf-merge',
+      title: 'PDF Merger',
+      description: 'Combine multiple PDF files into a single document. Zero quality loss, 100% private.',
+      icon: Layers,
+      path: '/pdf/merge',
+      color: 'bg-purple-500/10 text-purple-500',
+      active: true
+    },
+    {
+      id: 'pdf-split',
+      title: 'PDF Splitter',
+      description: 'Extract specific page ranges or split all pages into separate PDFs locally.',
+      icon: Scissors,
+      path: '/pdf/split',
+      color: 'bg-orange-500/10 text-orange-500',
+      active: true
+    },
+    {
+      id: 'pdf-to-image',
+      title: 'PDF to Image',
+      description: 'Convert PDF pages into high-quality PNG or JPEG images in your browser.',
+      icon: ImageIcon,
+      path: '/pdf/to-image',
+      color: 'bg-yellow-500/10 text-yellow-500',
+      active: true
+    },
+    {
+      id: 'image-compress',
       title: 'Image Compressor',
       description: 'Compress JPG, PNG, and WebP images while maintaining high visual quality.',
       icon: ImageIcon,
@@ -40,12 +68,30 @@ const DashboardPage = () => {
       active: true
     },
     {
-      id: 'merge',
-      title: 'PDF Merger',
-      description: 'Combine multiple PDF files into a single document. Zero quality loss, 100% private.',
+      id: 'image-to-pdf',
+      title: 'Image to PDF',
+      description: 'Combine multiple JPG, PNG, or WebP images into a single PDF document.',
+      icon: FileText,
+      path: '/image/to-pdf',
+      color: 'bg-indigo-500/10 text-indigo-500',
+      active: true
+    },
+    {
+      id: 'pdf-protect',
+      title: 'Protect PDF',
+      description: 'Secure PDF files with Adobe-compliant client-side password protection.',
+      icon: Lock,
+      path: '/pdf/protect',
+      color: 'bg-pink-500/10 text-pink-500',
+      active: true
+    },
+    {
+      id: 'image-convert',
+      title: 'Image Converter',
+      description: 'Convert images between PNG, JPG, and WebP formats in batch locally.',
       icon: Layers,
-      path: '/pdf/merge',
-      color: 'bg-purple-500/10 text-purple-500',
+      path: '/image/convert',
+      color: 'bg-teal-500/10 text-teal-500',
       active: true
     },
     {
@@ -66,7 +112,7 @@ const DashboardPage = () => {
         <meta name="description" content="100% Private, client-side file compression and optimization tools. Files never leave your browser." />
       </Helmet>
 
-      <div className="dark min-h-screen bg-background">
+      <div className="min-h-screen bg-background text-foreground pb-20 md:pb-0">
         <Header />
 
         {/* Hero Section */}
@@ -113,7 +159,7 @@ const DashboardPage = () => {
         {/* Tools Grid */}
         <section id="tools" className="py-20 bg-card/30 border-y border-border backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {tools.map((tool, index) => (
                 <motion.div
                   key={tool.id}

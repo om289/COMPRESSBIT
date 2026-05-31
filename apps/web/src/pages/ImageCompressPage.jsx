@@ -1,46 +1,150 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { Zap, Shield, UserCheck, Sparkles, Upload, Minimize2, Download, ArrowRight, Image as ImageIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Zap, Shield, UserCheck, Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 import FileUploadZone from '@/components/FileUploadZone.jsx';
 import CompressionResults from '@/components/CompressionResults.jsx';
 import { compressImageClient } from '@/lib/image-compressor-client.js';
+import { getWebApplicationSchema } from '@/lib/seo-helper.js';
+import { FAQAccordion } from '@/components/FAQAccordion.jsx';
+import { trackEvent, trackPageView } from '@/lib/analytics.js';
 
 const ImageCompressPage = () => {
-  const [compressionResult, setCompressionResult] = useState(null);
+  const [compressionResults, setCompressionResults] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [droppedFiles, setDroppedFiles] = useState(location.state?.droppedFiles || []);
 
-  const handleCompressionComplete = (result) => {
-    if (result) {
-      setCompressionResult(result);
+  useEffect(() => {
+    trackPageView('/image');
+  }, []);
+
+  useEffect(() => {
+    if (location.state?.droppedFiles) {
+      setDroppedFiles(location.state.droppedFiles);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
+
+  const handleCompressionComplete = (results) => {
+    if (results && results.length > 0) {
+      setCompressionResults(results);
+      
+      const successCount = results.filter(r => !r.error).length;
+      const failCount = results.filter(r => r.error).length;
+      
+      let totalOriginal = 0;
+      let totalCompressed = 0;
+      results.forEach(r => {
+        if (!r.error) {
+          totalOriginal += r.originalSize;
+          totalCompressed += r.compressedSize;
+        }
+      });
+      const totalSavedPct = totalOriginal > 0 ? (((totalOriginal - totalCompressed) / totalOriginal) * 100).toFixed(1) : 0;
+
+      trackEvent('compress_image_success', {
+        count: results.length,
+        success_count: successCount,
+        fail_count: failCount,
+        original_size_bytes: totalOriginal,
+        compressed_size_bytes: totalCompressed,
+        saved_percent: totalSavedPct,
+        preset: results[0]?.preset || 'default'
+      });
+
+      if (successCount > 0) {
+        if (results.length === 1) {
+          const res = results[0];
+          if (res.error) {
+            toast.error(`Failed to compress image: ${res.error}`);
+          } else {
+            const savedPct = res.actualPercentage > 0 ? `${res.actualPercentage}%` : '0%';
+            toast.success(`Image compressed successfully! (Reduced by ${savedPct})`);
+          }
+        } else {
+          if (failCount > 0) {
+            toast.success(`Compressed ${successCount} of ${results.length} images (Reduced total by ${totalSavedPct}%)`);
+            toast.error(`Failed to compress ${failCount} image(s)`);
+          } else {
+            toast.success(`Successfully compressed all ${results.length} images! (Reduced total by ${totalSavedPct}%)`);
+          }
+        }
+      } else {
+        toast.error('Failed to compress the image file(s).');
+      }
     }
   };
 
-  const handleDownload = () => {
-    if (!compressionResult) return;
-    
-    const blob = compressionResult.compressedData;
+  const handleDownload = (index) => {
+    if (!compressionResults || !compressionResults[index]) return;
+    const result = compressionResults[index];
+    if (!result.compressedData) return;
+
+    trackEvent('compress_image_download', {
+      fileName: result.fileName,
+      size: result.compressedData.size,
+      preset: result.preset
+    });
+
+    const blob = result.compressedData;
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    
-    // Determine extension from blob type or keep original but add suffix
+
     const type = blob.type.split('/')[1] || 'jpg';
-    const fileNameBase = compressionResult.fileName.substring(0, compressionResult.fileName.lastIndexOf('.')) || compressionResult.fileName;
-    
+    const fileNameBase = result.fileName.substring(0, result.fileName.lastIndexOf('.')) || result.fileName;
     link.download = `compressed-${fileNameBase}.${type}`;
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    
+    toast.success(`Downloaded ${result.fileName}`);
+  };
+
+  const handleDownloadAll = async () => {
+    if (!compressionResults || compressionResults.length === 0) return;
+
+    trackEvent('compress_image_download_all', {
+      count: compressionResults.length
+    });
+
+    toast.info('Creating ZIP archive...');
+    const { default: JSZip } = await import('jszip');
+    const zip = new JSZip();
+
+    compressionResults.forEach((result) => {
+      if (result.compressedData) {
+        const type = result.compressedData.type.split('/')[1] || 'jpg';
+        const fileNameBase = result.fileName.substring(0, result.fileName.lastIndexOf('.')) || result.fileName;
+        zip.file(`compressed-${fileNameBase}.${type}`, result.compressedData);
+      }
+    });
+
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'compressbit-images.zip';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast.success('Downloaded compressbit-images.zip');
   };
 
   const handleReset = () => {
-    setCompressionResult(null);
+    trackEvent('compress_image_reset');
+    setCompressionResults(null);
+    toast.info('Cleared files and results');
   };
 
   const features = [
@@ -61,19 +165,53 @@ const ImageCompressPage = () => {
     },
     {
       icon: Sparkles,
-      title: 'Bulk Ready',
-      description: 'Optimized for speed, allowing you to compress large images instantly in your browser.'
+      title: 'Batch Ready',
+      description: 'Select multiple images at once and compress them all in a single batch — instantly in your browser.'
+    }
+  ];
+
+  const faqs = [
+    {
+      question: "Which image formats are supported?",
+      answer: "CompressBit supports standard web formats including PNG, JPG/JPEG, WebP, and SVG. Output formats can be tuned based on presets."
+    },
+    {
+      question: "How does local image compression work?",
+      answer: "The browser paints your image onto a 2D HTML5 canvas. Depending on the preset, it downscales high-resolution dimension bounds and recompiles the pixel data buffer using low-ratio lossy compression algorithms, keeping the final operations entirely in RAM."
+    },
+    {
+      question: "Can I inspect the compression quality before downloading?",
+      answer: "Yes! Once compression finishes, you can click on any image to open an interactive side-by-side comparison slider showing the original vs. compressed image."
     }
   ];
 
   return (
     <>
       <Helmet>
-        <title>Compress Images - JPG, PNG, WebP Optimization | CompressBit</title>
-        <meta name="description" content="Compress JPG and PNG images instantly. Secure, private, and 100% client-side image optimization tool." />
+        <title>Compress Image - Shrink PNG, JPG, WebP | CompressBit</title>
+        <meta name="description" content="Compress images instantly and privately in your browser. Reduce file size of PNG, JPG, and WebP images local-first without quality loss." />
+        
+        {/* Open Graph / Social Sharing Tags */}
+        <meta property="og:title" content="Compress Image - Shrink PNG, JPG, WebP | CompressBit" />
+        <meta property="og:description" content="Compress images instantly and privately in your browser. Reduce file size of PNG, JPG, and WebP images local-first without quality loss." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.compressbit.com/image" />
+        <meta property="og:image" content="https://www.compressbit.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Compress Image - Shrink PNG, JPG, WebP | CompressBit" />
+        <meta name="twitter:description" content="Compress images instantly and privately in your browser. Reduce file size of PNG, JPG, and WebP images local-first without quality loss." />
+        <meta name="twitter:image" content="https://www.compressbit.com/og-image.png" />
+        
+        <script type="application/ld+json">
+          {JSON.stringify(getWebApplicationSchema(
+            "Image Compressor",
+            "/image",
+            "Compress images instantly and privately in your browser. Reduce file size of PNG, JPG, and WebP images local-first without quality loss."
+          ))}
+        </script>
       </Helmet>
 
-      <div className="dark min-h-screen bg-background">
+      <div className="min-h-screen bg-background text-foreground pb-20 md:pb-0">
         <Header />
 
         <section className="relative pt-32 pb-16 overflow-hidden">
@@ -97,20 +235,20 @@ const ImageCompressPage = () => {
         <section id="compress" className="py-12 bg-card/30 border-y border-border backdrop-blur-sm">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="space-y-6">
-              {!compressionResult ? (
+              {!compressionResults ? (
                 <FileUploadZone 
                   type="image" 
                   compressionFn={compressImageClient}
                   onCompressionComplete={handleCompressionComplete} 
+                  initialFiles={droppedFiles}
                 />
               ) : (
                 <CompressionResults
-                  originalSize={compressionResult.originalSize}
-                  compressedSize={compressionResult.compressedSize}
-                  actualPercentage={compressionResult.actualPercentage}
-                  fileName={compressionResult.fileName}
-                  preset={compressionResult.preset}
+                  results={compressionResults}
+                  preset={compressionResults[0]?.preset}
+                  type="image"
                   onDownload={handleDownload}
+                  onDownloadAll={handleDownloadAll}
                   onReset={handleReset}
                 />
               )}
@@ -135,6 +273,8 @@ const ImageCompressPage = () => {
                 </Card>
               ))}
             </div>
+
+            <FAQAccordion faqs={faqs} />
           </div>
         </section>
 

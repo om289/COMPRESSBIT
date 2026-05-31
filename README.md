@@ -68,7 +68,9 @@ The application relies on a highly dynamic, component-driven UI focused on immed
 *   **Dynamic SVG Progress Trackers**: When compressing, users see a circular progress animation mapped exactly to the engine's internal progress state.
 *   **Generic `FileUploadZone`**: A highly robust, drag-and-drop React component that parses `fileType` props dynamically. If fed `type="pdf"`, it locks `accept` tags to `.pdf`. If fed `type="image"`, it accepts `.jpg, .png, .webp`. It passes the internal file blobs upward to the routing wrapper for final processing.
 *   **Premium Component Library**: Built heavily on Radix UI primitives, stylized by standard Tailwind CSS utility classes, and enhanced by `framer-motion` for buttery smooth layout transitions.
-*   **SEO Optmized**: Implements `react-helmet` to switch out head tags per route. Bundled with a custom `sitemap.xml` mapping `/`, `/pdf`, `/png`, and `/jpg` for deep indexing.
+*   **SEO Optimized**: Implements `react-helmet` to switch out head tags per route. Injects structured JSON-LD schemas (`WebApplication` and `FAQPage`) dynamically based on active tool pages. Features interactive, schema-generating FAQ Accordions. Bundled with a custom `sitemap.xml` mapping clean paths including the `/blog` directory and posts for deep search engine indexing.
+*   **Client-Side Blog & Resource Engine (`/blog`, `/blog/:slug`)**: Statically loaded, rich SEO articles describing compression theory, secure browser cryptography, and client-side processing advantages. Features tag filtering, visual prose reading progress bar indicators, and copy-link triggers.
+*   **Privacy-Focused Event Tracking (`/src/lib/analytics.js`)**: Local client-side tracking module that logs user flows and conversion metrics to the console in development, with built-in toggle placeholders for zero-cookie self-hosted scripts.
 
 ---
 

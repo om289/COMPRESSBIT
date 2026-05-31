@@ -1,4 +1,5 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
   FileText, Upload, X, Layers, ArrowRight, GripVertical,
@@ -8,9 +9,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 import { mergePdfs } from '@/lib/pdf-merger-client.js';
+import { getWebApplicationSchema } from '@/lib/seo-helper.js';
+import { FAQAccordion } from '@/components/FAQAccordion.jsx';
+import { trackEvent, trackPageView } from '@/lib/analytics.js';
 
 const formatSize = (bytes) => {
   if (bytes === 0) return '0 B';
@@ -32,6 +37,9 @@ const PdfMergePage = () => {
   const [result, setResult] = useState(null);
   const [dragSrcId, setDragSrcId] = useState(null);
   const fileInputRef = useRef(null);
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const validateAndAddFiles = useCallback((newFiles) => {
     setError('');
@@ -58,6 +66,17 @@ const PdfMergePage = () => {
       setResult(null);
     }
   }, []);
+
+  useEffect(() => {
+    trackPageView('/pdf/merge');
+  }, []);
+
+  useEffect(() => {
+    if (location.state?.droppedFiles && location.state.droppedFiles.length > 0) {
+      validateAndAddFiles(location.state.droppedFiles);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate, validateAndAddFiles]);
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -125,14 +144,24 @@ const PdfMergePage = () => {
 
       setResult(mergeResult);
       setIsMerging(false);
+      trackEvent('merge_pdf_success', {
+        count: files.length,
+        total_size_bytes: files.reduce((sum, f) => sum + f.size, 0)
+      });
+      toast.success(`Successfully merged ${files.length} PDF files!`);
     } catch (err) {
-      setError(err.message || 'Merge failed. Please try again.');
+      const errMsg = err.message || 'Merge failed. Please try again.';
+      setError(errMsg);
       setIsMerging(false);
+      toast.error(errMsg);
     }
   };
 
   const handleDownload = () => {
     if (!result) return;
+    trackEvent('merge_pdf_download', {
+      size: result.blob.size
+    });
     const url = URL.createObjectURL(result.blob);
     const link = document.createElement('a');
     link.href = url;
@@ -141,15 +170,18 @@ const PdfMergePage = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast.success('Downloaded merged.pdf');
   };
 
   const handleReset = () => {
+    trackEvent('merge_pdf_reset');
     setFiles([]);
     setResult(null);
     setError('');
     setProgress(0);
     setIsMerging(false);
     fileIdCounter = 0;
+    toast.info('Reset merge flow');
   };
 
   const features = [
@@ -175,14 +207,52 @@ const PdfMergePage = () => {
     }
   ];
 
+  const faqs = [
+    {
+      question: "How does CompressBit merge PDFs without uploading them?",
+      answer: "We use client-side libraries (like pdf-lib) that run directly in your browser's execution engine. The code reads the binary data arrays of your files, arranges the page layouts in memory, and compiles them into a single file without communicating with a backend server."
+    },
+    {
+      question: "Can I rearrange the order of the PDFs before merging?",
+      answer: "Yes, absolutely! You can drag and drop the file cards up or down to adjust their ordering. The merged document will follow the exact order shown in the interface."
+    },
+    {
+      question: "Is there a limit to how many PDFs I can combine?",
+      answer: "No, there are no software limits. It is only restricted by your computer's browser memory (RAM) capacity. We suggest compiling documents up to a total of 500 pages for optimal speed."
+    },
+    {
+      question: "Will the visual quality of my PDFs degrade after merging?",
+      answer: "No. The pages from your documents are copied as raw, uncompressed byte streams. They are not re-encoded, which ensures zero quality degradation."
+    }
+  ];
+
   return (
     <>
       <Helmet>
-        <title>Merge PDF - Combine PDF Files Free | CompressBit</title>
-        <meta name="description" content="Merge multiple PDF files into one instantly in your browser. 100% free, private, and secure. No uploads, no sign-up required." />
+        <title>Merge PDF - Combine PDF Files Free & Local | CompressBit</title>
+        <meta name="description" content="Merge multiple PDF files into one single document instantly in your browser. 100% free, private, and secure. Drag and drop to reorder pages." />
+        
+        {/* Open Graph / Social Sharing Tags */}
+        <meta property="og:title" content="Merge PDF - Combine PDF Files Free & Local | CompressBit" />
+        <meta property="og:description" content="Merge multiple PDF files into one single document instantly in your browser. 100% free, private, and secure. Drag and drop to reorder pages." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.compressbit.com/pdf/merge" />
+        <meta property="og:image" content="https://www.compressbit.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Merge PDF - Combine PDF Files Free & Local | CompressBit" />
+        <meta name="twitter:description" content="Merge multiple PDF files into one single document instantly in your browser. 100% free, private, and secure. Drag and drop to reorder pages." />
+        <meta name="twitter:image" content="https://www.compressbit.com/og-image.png" />
+        
+        <script type="application/ld+json">
+          {JSON.stringify(getWebApplicationSchema(
+            "PDF Merger",
+            "/pdf/merge",
+            "Merge multiple PDF files into one single document instantly in your browser. 100% free, private, and secure. Drag and drop to reorder pages."
+          ))}
+        </script>
       </Helmet>
 
-      <div className="dark min-h-screen bg-background">
+      <div className="min-h-screen bg-background text-foreground pb-20 md:pb-0">
         <Header />
 
         {/* Hero */}
@@ -467,6 +537,8 @@ const PdfMergePage = () => {
                 </Card>
               ))}
             </div>
+            
+            <FAQAccordion faqs={faqs} />
           </div>
         </section>
 

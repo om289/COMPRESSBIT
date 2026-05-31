@@ -1,43 +1,149 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { Zap, Shield, UserCheck, Sparkles, Upload, Minimize2, Download, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Zap, Shield, UserCheck, Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 import FileUploadZone from '@/components/FileUploadZone.jsx';
 import CompressionResults from '@/components/CompressionResults.jsx';
 import { compressPdfClient } from '@/lib/pdf-compressor-client.js';
+import { getWebApplicationSchema } from '@/lib/seo-helper.js';
+import { FAQAccordion } from '@/components/FAQAccordion.jsx';
+import { trackEvent, trackPageView } from '@/lib/analytics.js';
 
 const PdfCompressPage = () => {
-  const [compressionResult, setCompressionResult] = useState(null);
+  const [compressionResults, setCompressionResults] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [droppedFiles, setDroppedFiles] = useState(location.state?.droppedFiles || []);
 
-  const handleCompressionComplete = (result) => {
-    if (result) {
-      setCompressionResult(result);
+  useEffect(() => {
+    trackPageView('/pdf');
+  }, []);
+
+  useEffect(() => {
+    if (location.state?.droppedFiles) {
+      setDroppedFiles(location.state.droppedFiles);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
+
+  const handleCompressionComplete = (results) => {
+    if (results && results.length > 0) {
+      setCompressionResults(results);
+      
+      const successCount = results.filter(r => !r.error).length;
+      const failCount = results.filter(r => r.error).length;
+      
+      let totalOriginal = 0;
+      let totalCompressed = 0;
+      results.forEach(r => {
+        if (!r.error) {
+          totalOriginal += r.originalSize;
+          totalCompressed += r.compressedSize;
+        }
+      });
+      const totalSavedPct = totalOriginal > 0 ? (((totalOriginal - totalCompressed) / totalOriginal) * 100).toFixed(1) : 0;
+
+      trackEvent('compress_pdf_success', {
+        count: results.length,
+        success_count: successCount,
+        fail_count: failCount,
+        original_size_bytes: totalOriginal,
+        compressed_size_bytes: totalCompressed,
+        saved_percent: totalSavedPct,
+        preset: results[0]?.preset || 'default'
+      });
+
+      if (successCount > 0) {
+        if (results.length === 1) {
+          const res = results[0];
+          if (res.error) {
+            toast.error(`Failed to compress PDF: ${res.error}`);
+          } else {
+            const savedPct = res.actualPercentage > 0 ? `${res.actualPercentage}%` : '0%';
+            toast.success(`PDF compressed successfully! (Reduced by ${savedPct})`);
+          }
+        } else {
+          if (failCount > 0) {
+            toast.success(`Compressed ${successCount} of ${results.length} PDFs (Reduced total by ${totalSavedPct}%)`);
+            toast.error(`Failed to compress ${failCount} PDF(s)`);
+          } else {
+            toast.success(`Successfully compressed all ${results.length} PDFs! (Reduced total by ${totalSavedPct}%)`);
+          }
+        }
+      } else {
+        toast.error('Failed to compress the PDF file(s).');
+      }
     }
   };
 
-  const handleDownload = () => {
-    if (!compressionResult) return;
-    
-    const blob = compressionResult.compressedData;
+  const handleDownload = (index) => {
+    if (!compressionResults || !compressionResults[index]) return;
+    const result = compressionResults[index];
+    if (!result.compressedData) return;
+
+    trackEvent('compress_pdf_download', {
+      fileName: result.fileName,
+      size: result.compressedData.size,
+      preset: result.preset
+    });
+
+    const blob = result.compressedData;
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    
-    const suffix = compressionResult.actualPercentage > 0 ? '-compressed.pdf' : '-processed.pdf';
-    link.download = `compressed-${compressionResult.fileName.replace('.pdf', '')}${suffix}`;
-    
+
+    const suffix = result.actualPercentage > 0 ? '-compressed.pdf' : '-processed.pdf';
+    link.download = `compressed-${result.fileName.replace('.pdf', '')}${suffix}`;
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    
+    toast.success(`Downloaded ${result.fileName}`);
+  };
+
+  const handleDownloadAll = async () => {
+    if (!compressionResults || compressionResults.length === 0) return;
+
+    trackEvent('compress_pdf_download_all', {
+      count: compressionResults.length
+    });
+
+    toast.info('Creating ZIP archive...');
+    const { default: JSZip } = await import('jszip');
+    const zip = new JSZip();
+
+    compressionResults.forEach((result) => {
+      if (result.compressedData) {
+        const suffix = result.actualPercentage > 0 ? '-compressed.pdf' : '-processed.pdf';
+        const name = `compressed-${result.fileName.replace('.pdf', '')}${suffix}`;
+        zip.file(name, result.compressedData);
+      }
+    });
+
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'compressbit-pdfs.zip';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast.success('Downloaded compressbit-pdfs.zip');
   };
 
   const handleReset = () => {
-    setCompressionResult(null);
+    trackEvent('compress_pdf_reset');
+    setCompressionResults(null);
+    toast.info('Cleared files and results');
   };
 
   const features = [
@@ -63,14 +169,52 @@ const PdfCompressPage = () => {
     }
   ];
 
+  const faqs = [
+    {
+      question: "Is it safe to compress my PDFs here?",
+      answer: "Yes, 100% safe. Unlike other online tools, CompressBit processes your files entirely on your local machine using client-side JavaScript. Your files are never uploaded to any server, keeping your sensitive information completely private."
+    },
+    {
+      question: "Will the PDF lose quality after compression?",
+      answer: "We offer multiple compression presets. The 'Good' quality setting reduces file size using lossless structural optimizations like subsetting fonts and removing duplicate elements. The 'Extreme' setting uses lossy compression to resize and downsample images, which significantly reduces file size with minimal visual degradation."
+    },
+    {
+      question: "What is the maximum file size limit?",
+      answer: "Since compression runs locally in your browser's memory, there are no hard platform limits! It is only restricted by your computer's RAM. We recommend compressing files up to 2GB for the smoothest experience."
+    },
+    {
+      question: "Can I compress multiple PDFs at once?",
+      answer: "Absolutely. You can drag and drop multiple PDF files into the upload zone to compress them simultaneously. Once completed, you can download them individually or as a single ZIP package."
+    }
+  ];
+
   return (
     <>
       <Helmet>
-        <title>Compress PDF - CompressBit</title>
-        <meta name="description" content="Compress PDF files instantly and privately in your browser. Fast, secure, and no uploads." />
+        <title>Compress PDF - Free & Local | CompressBit</title>
+        <meta name="description" content="Compress PDF files instantly and privately in your browser. Shrink PDF file sizes locally without uploading them to external servers." />
+        
+        {/* Open Graph / Social Sharing Tags */}
+        <meta property="og:title" content="Compress PDF - Free & Local | CompressBit" />
+        <meta property="og:description" content="Compress PDF files instantly and privately in your browser. Shrink PDF file sizes locally without uploading them to external servers." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.compressbit.com/pdf" />
+        <meta property="og:image" content="https://www.compressbit.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Compress PDF - Free & Local | CompressBit" />
+        <meta name="twitter:description" content="Compress PDF files instantly and privately in your browser. Shrink PDF file sizes locally without uploading them to external servers." />
+        <meta name="twitter:image" content="https://www.compressbit.com/og-image.png" />
+        
+        <script type="application/ld+json">
+          {JSON.stringify(getWebApplicationSchema(
+            "PDF Compressor",
+            "/pdf",
+            "Compress PDF files instantly and privately in your browser. Shrink PDF file sizes locally without uploading them to external servers."
+          ))}
+        </script>
       </Helmet>
 
-      <div className="dark min-h-screen bg-background">
+      <div className="min-h-screen bg-background text-foreground pb-20 md:pb-0">
         <Header />
 
         <section className="relative pt-32 pb-16 overflow-hidden">
@@ -94,20 +238,20 @@ const PdfCompressPage = () => {
         <section id="compress" className="py-12 bg-card/30 border-y border-border backdrop-blur-sm">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="space-y-6">
-              {!compressionResult ? (
+              {!compressionResults ? (
                 <FileUploadZone 
                   type="pdf" 
                   compressionFn={compressPdfClient}
                   onCompressionComplete={handleCompressionComplete} 
+                  initialFiles={droppedFiles}
                 />
               ) : (
                 <CompressionResults
-                  originalSize={compressionResult.originalSize}
-                  compressedSize={compressionResult.compressedSize}
-                  actualPercentage={compressionResult.actualPercentage}
-                  fileName={compressionResult.fileName}
-                  preset={compressionResult.preset}
+                  results={compressionResults}
+                  preset={compressionResults[0]?.preset}
+                  type="pdf"
                   onDownload={handleDownload}
+                  onDownloadAll={handleDownloadAll}
                   onReset={handleReset}
                 />
               )}
@@ -133,6 +277,8 @@ const PdfCompressPage = () => {
                 </Card>
               ))}
             </div>
+
+            <FAQAccordion faqs={faqs} />
           </div>
         </section>
 
