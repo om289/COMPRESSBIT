@@ -10,15 +10,11 @@ const formatFileSize = (bytes) => {
 
 export const AnimatedSizeCounter = ({ value, duration = 800 }) => {
   const [currentValue, setCurrentValue] = useState(0);
+  const prevValueRef = React.useRef(0);
 
   useEffect(() => {
-    let start = 0;
+    const start = prevValueRef.current;
     const end = Number(value) || 0;
-    if (end === 0) {
-      setCurrentValue(0);
-      return;
-    }
-
     let startTime = null;
 
     const animate = (timestamp) => {
@@ -26,6 +22,7 @@ export const AnimatedSizeCounter = ({ value, duration = 800 }) => {
       const progress = Math.min((timestamp - startTime) / duration, 1);
       const calculatedValue = Math.floor(progress * (end - start) + start);
       setCurrentValue(calculatedValue);
+      prevValueRef.current = calculatedValue;
 
       if (progress < 1) {
         requestAnimationFrame(animate);
@@ -41,15 +38,11 @@ export const AnimatedSizeCounter = ({ value, duration = 800 }) => {
 
 export const AnimatedPercentageCounter = ({ value, duration = 800 }) => {
   const [currentValue, setCurrentValue] = useState(0);
+  const prevValueRef = React.useRef(0);
 
   useEffect(() => {
-    let start = 0;
+    const start = prevValueRef.current;
     const end = Number(value) || 0;
-    if (end === 0) {
-      setCurrentValue(0);
-      return;
-    }
-
     let startTime = null;
 
     const animate = (timestamp) => {
@@ -57,6 +50,7 @@ export const AnimatedPercentageCounter = ({ value, duration = 800 }) => {
       const progress = Math.min((timestamp - startTime) / duration, 1);
       const calculatedValue = Number((progress * (end - start) + start).toFixed(2));
       setCurrentValue(calculatedValue);
+      prevValueRef.current = calculatedValue;
 
       if (progress < 1) {
         requestAnimationFrame(animate);
