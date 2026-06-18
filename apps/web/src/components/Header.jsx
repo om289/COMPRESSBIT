@@ -107,18 +107,23 @@ const Header = () => {
                           {link.submenu.map((sub) => {
                             const isSubActive = location.pathname === sub.path;
                             return (
-                              <Link
+                              <motion.div
                                 key={sub.name}
-                                to={sub.path}
-                                className={`flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
-                                  isSubActive
-                                    ? 'text-primary bg-primary/10 font-semibold'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                                }`}
+                                whileHover={{ x: 4 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                               >
-                                <sub.icon className="w-4 h-4" />
-                                {sub.name}
-                              </Link>
+                                <Link
+                                  to={sub.path}
+                                  className={`flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+                                    isSubActive
+                                      ? 'text-primary bg-primary/10 font-semibold'
+                                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                  }`}
+                                >
+                                  <sub.icon className="w-4 h-4" />
+                                  {sub.name}
+                                </Link>
+                              </motion.div>
                             );
                           })}
                         </motion.div>
