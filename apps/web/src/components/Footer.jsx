@@ -43,7 +43,7 @@ const Footer = () => {
           {/* Tools */}
           <div className="space-y-4">
             <span className="text-sm font-semibold tracking-wide">Tools</span>
-            <ul className="space-y-2">
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
               {toolLinks.map((link) => (
                 <li key={link.name}>
                   <Link
