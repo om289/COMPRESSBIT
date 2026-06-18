@@ -211,72 +211,74 @@ const ImageCompressPage = () => {
         </script>
       </Helmet>
 
-      <div className="min-h-screen bg-background text-foreground pb-20 md:pb-0">
+      <div className="min-h-screen bg-background text-foreground flex flex-col justify-between pb-20 md:pb-0">
         <Header />
 
-        <section className="relative pt-32 pb-16 overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-4"
-            >
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground tracking-tight">
-                Compress Images
-              </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Optimize JPG, PNG, and WebP images with ease. <br className="hidden md:block" />
-                <span className="text-primary font-medium">Your images stay on your device. Zero server uploads.</span>
-              </p>
-            </motion.div>
-          </div>
-        </section>
-
-        <section id="compress" className="py-12 bg-card/30 border-y border-border">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="space-y-6">
-              {!compressionResults ? (
-                <FileUploadZone 
-                  type="image" 
-                  compressionFn={compressImageClient}
-                  onCompressionComplete={handleCompressionComplete} 
-                  initialFiles={droppedFiles}
-                />
-              ) : (
-                <CompressionResults
-                  results={compressionResults}
-                  preset={compressionResults[0]?.preset}
-                  type="image"
-                  onDownload={handleDownload}
-                  onDownloadAll={handleDownloadAll}
-                  onReset={handleReset}
-                />
-              )}
+        <main className="flex-grow">
+          <section className="relative pt-32 pb-16 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                <h1 className="text-4xl md:text-6xl font-bold text-foreground tracking-tight">
+                  Compress Images
+                </h1>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Optimize JPG, PNG, and WebP images with ease. <br className="hidden md:block" />
+                  <span className="text-primary font-medium">Your images stay on your device. Zero server uploads.</span>
+                </p>
+              </motion.div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section className="py-20 bg-background border-t border-border">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {features.map((feature, index) => (
-                <Card key={feature.title} className="p-8 bg-card border-border hover:shadow-lg transition-all duration-300">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <feature.icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-foreground">{feature.title}</h3>
-                      <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+          <section id="compress" className="py-12 bg-card/30 border-y border-border">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="space-y-6">
+                {!compressionResults ? (
+                  <FileUploadZone 
+                    type="image" 
+                    compressionFn={compressImageClient}
+                    onCompressionComplete={handleCompressionComplete} 
+                    initialFiles={droppedFiles}
+                  />
+                ) : (
+                  <CompressionResults
+                    results={compressionResults}
+                    preset={compressionResults[0]?.preset}
+                    type="image"
+                    onDownload={handleDownload}
+                    onDownloadAll={handleDownloadAll}
+                    onReset={handleReset}
+                  />
+                )}
+              </div>
             </div>
+          </section>
 
-            <FAQAccordion faqs={faqs} />
-          </div>
-        </section>
+          <section className="py-20 bg-background border-t border-border">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {features.map((feature, index) => (
+                  <Card key={feature.title} className="p-8 bg-card border-border hover:shadow-lg transition-all duration-300">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <feature.icon className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-foreground">{feature.title}</h3>
+                        <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              <FAQAccordion faqs={faqs} />
+            </div>
+          </section>
+        </main>
 
         <Footer />
       </div>

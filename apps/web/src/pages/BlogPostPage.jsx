@@ -86,10 +86,10 @@ export const BlogPostPage = () => {
         style={{ scaleX }} 
       />
 
-      <div className="min-h-screen bg-background text-foreground pb-20 md:pb-0">
+      <div className="min-h-screen bg-background text-foreground flex flex-col justify-between pb-20 md:pb-0">
         <Header />
 
-        <main className="pt-32 pb-20">
+        <main className="flex-grow pt-32 pb-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6">
             
             {/* Back to Blog Navigation */}

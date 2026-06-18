@@ -41,10 +41,10 @@ export const BlogPage = () => {
         <meta name="twitter:image" content="https://www.compressbit.com/og-image.png" />
       </Helmet>
 
-      <div className="min-h-screen bg-background text-foreground pb-20 md:pb-0">
+      <div className="min-h-screen bg-background text-foreground flex flex-col justify-between pb-20 md:pb-0">
         <Header />
 
-        <main className="pt-32 pb-16">
+        <main className="flex-grow pt-32 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             {/* Page Header */}

@@ -238,320 +238,322 @@ const PdfToImagePage = () => {
         </script>
       </Helmet>
 
-      <div className="min-h-screen bg-background text-foreground pb-20 md:pb-0">
+      <div className="min-h-screen bg-background text-foreground flex flex-col justify-between pb-20 md:pb-0">
         <Header />
 
-        {/* Hero */}
-        <section className="relative pt-32 pb-16 overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-4"
-            >
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground tracking-tight">
-                PDF to Image
-              </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Convert PDF pages to crisp PNG or JPG images entirely in your browser. <br className="hidden md:block" />
-                <span className="text-primary font-medium">Fast, secure, and private.</span>
-              </p>
-            </motion.div>
-          </div>
-        </section>
+        <main className="flex-grow">
+          {/* Hero */}
+          <section className="relative pt-32 pb-16 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                <h1 className="text-4xl md:text-6xl font-bold text-foreground tracking-tight">
+                  PDF to Image
+                </h1>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Convert PDF pages to crisp PNG or JPG images entirely in your browser. <br className="hidden md:block" />
+                  <span className="text-primary font-medium">Fast, secure, and private.</span>
+                </p>
+              </motion.div>
+            </div>
+          </section>
 
-        {/* Action Section */}
-        <section className="py-12 bg-card/30 border-y border-border">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="space-y-6">
+          {/* Action Section */}
+          <section className="py-12 bg-card/30 border-y border-border">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="space-y-6">
 
-              {/* Completed Result */}
-              {result && !isConverting && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="p-8 md:p-12 bg-card border border-border rounded-3xl shadow-lg max-w-2xl mx-auto w-full"
-                >
-                  <div className="flex flex-col items-center text-center space-y-6">
-                    <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                      <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                {/* Completed Result */}
+                {result && !isConverting && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-8 md:p-12 bg-card border border-border rounded-3xl shadow-lg max-w-2xl mx-auto w-full"
+                  >
+                    <div className="flex flex-col items-center text-center space-y-6">
+                      <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                        <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-foreground">Conversion Complete!</h3>
+                      
+                      <div className="grid grid-cols-2 gap-8 w-full py-4 border-y border-border">
+                        <div className="text-center">
+                          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Images Converted</div>
+                          <div className="text-2xl font-bold text-primary mt-1">{result.count}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">File Size</div>
+                          <div className="text-2xl font-bold text-foreground mt-1">{formatSize(result.blob.size)}</div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full">
+                        <Button
+                          size="lg"
+                          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 text-lg h-14 shadow-lg shadow-primary/20 active:scale-[0.98]"
+                          onClick={handleDownload}
+                        >
+                          <Download className="w-5 h-5 mr-2" />
+                          {result.isZip ? 'Download Images (ZIP)' : 'Download Image'}
+                        </Button>
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          onClick={handleReset}
+                          className="sm:w-40 bg-card h-14 active:scale-[0.98]"
+                        >
+                          Convert Another
+                        </Button>
+                      </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-foreground">Conversion Complete!</h3>
+                  </motion.div>
+                )}
+
+                {/* Progress UI */}
+                {isConverting && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-8 md:p-12 bg-card border border-border rounded-3xl shadow-lg max-w-2xl mx-auto w-full"
+                  >
+                    <div className="flex flex-col items-center justify-center space-y-8 text-center">
+                      <div className="relative">
+                        <div className="w-24 h-24 rounded-full border-4 border-muted flex items-center justify-center">
+                          <ImageIcon className="w-10 h-10 text-primary animate-pulse" />
+                        </div>
+                        <svg className="absolute inset-0 w-24 h-24 -rotate-90" viewBox="0 0 100 100">
+                          <circle
+                            cx="50" cy="50" r="46"
+                            fill="none" stroke="currentColor" strokeWidth="4"
+                            className="text-primary transition-all duration-300 ease-out"
+                            strokeDasharray={`${progress * 2.89} 289`}
+                          />
+                        </svg>
+                      </div>
+                      <div className="space-y-3 w-full">
+                        <h3 className="text-xl font-bold text-foreground">Converting PDF Pages</h3>
+                        <p className="text-sm text-muted-foreground h-5">{progressLabel}</p>
+                      </div>
+                      <div className="w-full space-y-2">
+                        <div className="flex justify-between text-xs font-medium text-muted-foreground px-1">
+                          <span>Progress</span>
+                          <span style={{ fontVariantNumeric: 'tabular-nums' }}>{progress}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                          <motion.div
+                            className="h-full bg-primary rounded-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${progress}%` }}
+                            transition={{ duration: 0.3 }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Upload Drop Zone (Empty State) */}
+                {!file && !isConverting && !result && (
+                  <motion.div
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                    onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
+                    onDrop={handleDrop}
+                    whileHover={{ scale: 1.01 }}
+                    className={`relative border-2 border-dashed rounded-3xl p-16 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center text-center ${
+                      isDragging
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/50 bg-card/50'
+                    }`}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) => handleFileSelect(e.target.files)}
+                      className="hidden"
+                    />
                     
-                    <div className="grid grid-cols-2 gap-8 w-full py-4 border-y border-border">
-                      <div className="text-center">
-                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Images Converted</div>
-                        <div className="text-2xl font-bold text-primary mt-1">{result.count}</div>
+                    <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300 ${
+                      isDragging ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-muted text-muted-foreground shadow-sm'
+                    }`}>
+                      {isDragging ? <ImageIcon className="w-10 h-10" /> : <Upload className="w-10 h-10" />}
+                    </div>
+                    
+                    <h3 className="text-2xl font-bold text-foreground mb-2">
+                      {isDragging ? 'Drop your PDF here' : 'Drag and drop your PDF'}
+                    </h3>
+                    <p className="text-base text-muted-foreground mb-8">
+                      or click to browse your device
+                    </p>
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="pointer-events-none bg-background shadow-sm px-8 h-12"
+                    >
+                      Select PDF File
+                    </Button>
+                    
+                    <p className="text-sm text-muted-foreground mt-6 font-medium">
+                      Supports: .pdf (Max 100MB)
+                    </p>
+                  </motion.div>
+                )}
+
+                {/* Configurations Panel */}
+                {file && !isConverting && !result && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-6"
+                  >
+                    {/* File Metadata Card */}
+                    <div className="flex items-center justify-between p-4 bg-muted/30 border border-border rounded-2xl">
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                          <FileText className="w-5 h-5 text-red-500" />
+                        </div>
+                        <div className="truncate pr-4">
+                          <p className="text-sm font-semibold text-foreground truncate">{file.name}</p>
+                          <p className="text-xs text-muted-foreground">{formatSize(file.size)}</p>
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">File Size</div>
-                        <div className="text-2xl font-bold text-foreground mt-1">{formatSize(result.blob.size)}</div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleReset}
+                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0 rounded-xl w-8 h-8"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    {/* Settings Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 border border-border bg-muted/10 rounded-2xl">
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-foreground">Output Format</label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setFormat('png')}
+                            className={`py-2.5 rounded-xl border text-sm font-semibold transition-all ${
+                              format === 'png'
+                                ? 'bg-primary border-primary text-primary-foreground'
+                                : 'bg-card border-border text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            PNG (Lossless)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setFormat('jpeg')}
+                            className={`py-2.5 rounded-xl border text-sm font-semibold transition-all ${
+                              format === 'jpeg'
+                                ? 'bg-primary border-primary text-primary-foreground'
+                                : 'bg-card border-border text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            JPEG (Compressed)
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-foreground">Resolution Scale</label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {[
+                            { val: 1.0, label: '1x (Low)' },
+                            { val: 1.5, label: '1.5x' },
+                            { val: 2.0, label: '2x (HD)' },
+                            { val: 3.0, label: '3x (UHD)' }
+                          ].map((opt) => (
+                            <button
+                              key={opt.val}
+                              type="button"
+                              onClick={() => setScale(opt.val)}
+                              className={`py-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                                scale === opt.val
+                                  ? 'bg-primary border-primary text-primary-foreground'
+                                  : 'bg-card border-border text-muted-foreground hover:text-foreground'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 md:col-span-2">
+                        <label className="text-sm font-semibold text-foreground">Page Range (Optional)</label>
+                        <input
+                          type="text"
+                          value={rangeInput}
+                          onChange={(e) => setRangeInput(e.target.value)}
+                          placeholder="e.g. 1-3, 5 (Leave empty to convert all pages)"
+                          className="w-full h-12 px-4 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 text-sm font-medium"
+                        />
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full">
+                    {error && (
+                      <div className="flex items-center justify-center space-x-2 text-destructive bg-destructive/10 p-4 rounded-xl border border-destructive/20">
+                        <AlertCircle className="w-5 h-5 shrink-0" />
+                        <p className="text-sm font-medium">{error}</p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-4 pt-2">
                       <Button
                         size="lg"
-                        className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 text-lg h-14 shadow-lg shadow-primary/20 active:scale-[0.98]"
-                        onClick={handleDownload}
+                        className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 text-lg h-14 shadow-lg shadow-primary/20 active:scale-[0.98]"
+                        onClick={handleConvert}
                       >
-                        <Download className="w-5 h-5 mr-2" />
-                        {result.isZip ? 'Download Images (ZIP)' : 'Download Image'}
+                        <ImageIcon className="w-5 h-5 mr-2" />
+                        Convert to Image
                       </Button>
                       <Button
                         size="lg"
                         variant="outline"
                         onClick={handleReset}
-                        className="sm:w-40 bg-card h-14 active:scale-[0.98]"
+                        className="sm:w-32 bg-card h-14 active:scale-[0.98]"
                       >
-                        Convert Another
+                        Cancel
                       </Button>
                     </div>
-                  </div>
-                </motion.div>
-              )}
+                  </motion.div>
+                )}
 
-              {/* Progress UI */}
-              {isConverting && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="p-8 md:p-12 bg-card border border-border rounded-3xl shadow-lg max-w-2xl mx-auto w-full"
-                >
-                  <div className="flex flex-col items-center justify-center space-y-8 text-center">
-                    <div className="relative">
-                      <div className="w-24 h-24 rounded-full border-4 border-muted flex items-center justify-center">
-                        <ImageIcon className="w-10 h-10 text-primary animate-pulse" />
-                      </div>
-                      <svg className="absolute inset-0 w-24 h-24 -rotate-90" viewBox="0 0 100 100">
-                        <circle
-                          cx="50" cy="50" r="46"
-                          fill="none" stroke="currentColor" strokeWidth="4"
-                          className="text-primary transition-all duration-300 ease-out"
-                          strokeDasharray={`${progress * 2.89} 289`}
-                        />
-                      </svg>
-                    </div>
-                    <div className="space-y-3 w-full">
-                      <h3 className="text-xl font-bold text-foreground">Converting PDF Pages</h3>
-                      <p className="text-sm text-muted-foreground h-5">{progressLabel}</p>
-                    </div>
-                    <div className="w-full space-y-2">
-                      <div className="flex justify-between text-xs font-medium text-muted-foreground px-1">
-                        <span>Progress</span>
-                        <span style={{ fontVariantNumeric: 'tabular-nums' }}>{progress}%</span>
-                      </div>
-                      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full bg-primary rounded-full"
-                          initial={{ width: 0 }}
-                          animate={{ width: `${progress}%` }}
-                          transition={{ duration: 0.3 }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Upload Drop Zone (Empty State) */}
-              {!file && !isConverting && !result && (
-                <motion.div
-                  onClick={() => fileInputRef.current?.click()}
-                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                  onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
-                  onDrop={handleDrop}
-                  whileHover={{ scale: 1.01 }}
-                  className={`relative border-2 border-dashed rounded-3xl p-16 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center text-center ${
-                    isDragging
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50 bg-card/50'
-                  }`}
-                >
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(e) => handleFileSelect(e.target.files)}
-                    className="hidden"
-                  />
-                  
-                  <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300 ${
-                    isDragging ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-muted text-muted-foreground shadow-sm'
-                  }`}>
-                    {isDragging ? <ImageIcon className="w-10 h-10" /> : <Upload className="w-10 h-10" />}
-                  </div>
-                  
-                  <h3 className="text-2xl font-bold text-foreground mb-2">
-                    {isDragging ? 'Drop your PDF here' : 'Drag and drop your PDF'}
-                  </h3>
-                  <p className="text-base text-muted-foreground mb-8">
-                    or click to browse your device
-                  </p>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="pointer-events-none bg-background shadow-sm px-8 h-12"
-                  >
-                    Select PDF File
-                  </Button>
-                  
-                  <p className="text-sm text-muted-foreground mt-6 font-medium">
-                    Supports: .pdf (Max 100MB)
-                  </p>
-                </motion.div>
-              )}
-
-              {/* Configurations Panel */}
-              {file && !isConverting && !result && (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-6"
-                >
-                  {/* File Metadata Card */}
-                  <div className="flex items-center justify-between p-4 bg-muted/30 border border-border rounded-2xl">
-                    <div className="flex items-center space-x-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0">
-                        <FileText className="w-5 h-5 text-red-500" />
-                      </div>
-                      <div className="truncate pr-4">
-                        <p className="text-sm font-semibold text-foreground truncate">{file.name}</p>
-                        <p className="text-xs text-muted-foreground">{formatSize(file.size)}</p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleReset}
-                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0 rounded-xl w-8 h-8"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-
-                  {/* Settings Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 border border-border bg-muted/10 rounded-2xl">
-                    <div className="space-y-3">
-                      <label className="text-sm font-semibold text-foreground">Output Format</label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setFormat('png')}
-                          className={`py-2.5 rounded-xl border text-sm font-semibold transition-all ${
-                            format === 'png'
-                              ? 'bg-primary border-primary text-primary-foreground'
-                              : 'bg-card border-border text-muted-foreground hover:text-foreground'
-                          }`}
-                        >
-                          PNG (Lossless)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setFormat('jpeg')}
-                          className={`py-2.5 rounded-xl border text-sm font-semibold transition-all ${
-                            format === 'jpeg'
-                              ? 'bg-primary border-primary text-primary-foreground'
-                              : 'bg-card border-border text-muted-foreground hover:text-foreground'
-                          }`}
-                        >
-                          JPEG (Compressed)
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <label className="text-sm font-semibold text-foreground">Resolution Scale</label>
-                      <div className="grid grid-cols-4 gap-2">
-                        {[
-                          { val: 1.0, label: '1x (Low)' },
-                          { val: 1.5, label: '1.5x' },
-                          { val: 2.0, label: '2x (HD)' },
-                          { val: 3.0, label: '3x (UHD)' }
-                        ].map((opt) => (
-                          <button
-                            key={opt.val}
-                            type="button"
-                            onClick={() => setScale(opt.val)}
-                            className={`py-2.5 rounded-xl border text-xs font-semibold transition-all ${
-                              scale === opt.val
-                                ? 'bg-primary border-primary text-primary-foreground'
-                                : 'bg-card border-border text-muted-foreground hover:text-foreground'
-                            }`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 md:col-span-2">
-                      <label className="text-sm font-semibold text-foreground">Page Range (Optional)</label>
-                      <input
-                        type="text"
-                        value={rangeInput}
-                        onChange={(e) => setRangeInput(e.target.value)}
-                        placeholder="e.g. 1-3, 5 (Leave empty to convert all pages)"
-                        className="w-full h-12 px-4 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 text-sm font-medium"
-                      />
-                    </div>
-                  </div>
-
-                  {error && (
-                    <div className="flex items-center justify-center space-x-2 text-destructive bg-destructive/10 p-4 rounded-xl border border-destructive/20">
-                      <AlertCircle className="w-5 h-5 shrink-0" />
-                      <p className="text-sm font-medium">{error}</p>
-                    </div>
-                  )}
-
-                  <div className="flex gap-4 pt-2">
-                    <Button
-                      size="lg"
-                      className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 text-lg h-14 shadow-lg shadow-primary/20 active:scale-[0.98]"
-                      onClick={handleConvert}
-                    >
-                      <ImageIcon className="w-5 h-5 mr-2" />
-                      Convert to Image
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      onClick={handleReset}
-                      className="sm:w-32 bg-card h-14 active:scale-[0.98]"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </motion.div>
-              )}
-
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Features Grid */}
-        <section className="py-20 bg-background border-t border-border">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {features.map((feature) => (
-                <Card key={feature.title} className="p-8 bg-card border-border hover:shadow-lg transition-all duration-300">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <feature.icon className="w-6 h-6 text-primary" />
+          {/* Features Grid */}
+          <section className="py-20 bg-background border-t border-border">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {features.map((feature) => (
+                  <Card key={feature.title} className="p-8 bg-card border-border hover:shadow-lg transition-all duration-300">
+                    <div className="flex items-start space-x-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <feature.icon className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-foreground">{feature.title}</h3>
+                        <p className="text-muted-foreground leading-relaxed mt-1">{feature.description}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-foreground">{feature.title}</h3>
-                      <p className="text-muted-foreground leading-relaxed mt-1">{feature.description}</p>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+              </div>
+              
+              <FAQAccordion faqs={faqs} />
             </div>
-            
-            <FAQAccordion faqs={faqs} />
-          </div>
-        </section>
+          </section>
+        </main>
 
         <Footer />
       </div>

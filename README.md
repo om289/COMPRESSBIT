@@ -101,3 +101,29 @@ Because GitHub Pages does not natively support HTML5 `pushState` routing (it ser
 1. **Redirection Payload (`404.html`)**: When GitHub Pages detects a missing static path, it serves the custom `404.html` containing a script that wraps the current path into a query parameter (e.g. `/?/encrypt`) and redirects back to `/`.
 2. **Resolution (`index.html`)**: A small script inside the `<head>` of the main `index.html` parses this parameter, restores the clean path history via `window.history.replaceState()`, and exposes it back to React Router before the app mounts.
 
+---
+
+## 🗺️ Website Sitemap & Page Index
+
+Below is the directory mapping of active pages on **CompressBit**, as defined in the `sitemap.xml`:
+
+| Path | Description | Priority |
+| :--- | :--- | :--- |
+| `/` | **Homepage** — Hub for all compression tools. | `1.00` |
+| `/pdf` | **PDF Compressor** — Reduce PDF file size offline. | `0.80` |
+| `/pdf/merge` | **PDF Merger** — Combine multiple PDFs locally. | `0.80` |
+| `/pdf/split` | **PDF Splitter** — Extract pages from a PDF. | `0.80` |
+| `/pdf/to-image` | **PDF to Image** — Convert PDF pages into JPG/PNG. | `0.80` |
+| `/pdf/protect` | **PDF Password Protect** — Secure PDFs. | `0.80` |
+| `/image` | **Image Compressor** — Optimize JPEG, PNG, and WebP images. | `0.80` |
+| `/image/to-pdf` | **Image to PDF** — Convert images to a single PDF. | `0.80` |
+| `/image/convert` | **Image Format Converter** — Change image extensions. | `0.80` |
+| `/encrypt` | **Secure File Encryption** — Client-side AES-256 encryption. | `0.80` |
+| `/privacy` | **Privacy Policy** — Our zero-upload security commitment. | `0.30` |
+| `/terms` | **Terms of Service** — Terms of use for the platform. | `0.30` |
+| `/blog` | **Blog Home** — Articles on compression, cryptography, and optimization. | `0.70` |
+| `/blog/why-local-file-compression-is-safer-than-cloud` | **Blog Post** — Why local compression is safer. | `0.60` |
+| `/blog/understanding-pdf-compression-lossy-vs-lossless` | **Blog Post** — Lossy vs. Lossless PDF optimization. | `0.60` |
+| `/blog/guide-to-secure-browser-based-file-encryption` | **Blog Post** — Guide to browser-based encryption. | `0.60` |
+
+
