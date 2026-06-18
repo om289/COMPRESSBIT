@@ -30,7 +30,7 @@ export const FAQAccordion = ({ faqs = [] }) => {
       </h3>
       <Accordion type="single" collapsible className="w-full space-y-1">
         {faqs.map((faq, idx) => (
-          <AccordionItem key={idx} value={`item-${idx}`} className="border-border px-1">
+          <AccordionItem key={idx} value={`item-${idx}`} className="border-b border-border/60 px-4 rounded-2xl hover:bg-muted/10 transition-all duration-200">
             <AccordionTrigger className="text-base font-semibold text-foreground hover:text-primary transition-colors py-4 no-underline hover:no-underline text-left">
               {faq.question}
             </AccordionTrigger>
