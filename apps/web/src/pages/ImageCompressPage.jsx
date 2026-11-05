@@ -182,6 +182,10 @@ const ImageCompressPage = () => {
     {
       question: "Can I inspect the compression quality before downloading?",
       answer: "Yes! Once compression finishes, you can click on any image to open an interactive side-by-side comparison slider showing the original vs. compressed image."
+    },
+    {
+      question: "Can I compress an image to a specific file size?",
+      answer: "Yes. After selecting your images, enter an optional target in KB. CompressBit tests output quality and reduces dimensions only when necessary, then shows the target beside the completed result. Very small targets may require visible quality or resolution changes."
     }
   ];
 
@@ -189,7 +193,7 @@ const ImageCompressPage = () => {
     <>
       <Helmet>
         <title>Compress Image - Shrink PNG, JPG, WebP | CompressBit</title>
-        <meta name="description" content="Compress images instantly and privately in your browser. Reduce file size of PNG, JPG, and WebP images local-first without quality loss." />
+        <meta name="description" content="Compress PNG, JPG, and WebP images to a target file size in KB, privately in your browser. Control the balance between file size, resolution, and quality." />
         
         {/* Open Graph / Social Sharing Tags */}
         <meta property="og:title" content="Compress Image - Shrink PNG, JPG, WebP | CompressBit" />

@@ -1,11 +1,12 @@
 import React, { lazy, Suspense } from 'react';
-import { Route, Routes, BrowserRouter as Router, Navigate } from 'react-router-dom';
+import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import { Toaster } from './components/ui/sonner.jsx';
 import { ThemeProvider } from 'next-themes';
 import { GlobalDropZone } from './components/GlobalDropZone.jsx';
 import { MobileBottomNav } from './components/MobileBottomNav.jsx';
+import RouteMetadata from './components/RouteMetadata.jsx';
 
 // Lazy load pages to optimize initial bundle size
 const PdfCompressPage = lazy(() => import('./pages/PdfCompressPage.jsx'));
@@ -13,12 +14,17 @@ const PdfMergePage = lazy(() => import('./pages/PdfMergePage.jsx'));
 const PdfSplitPage = lazy(() => import('./pages/PdfSplitPage.jsx'));
 const PdfToImagePage = lazy(() => import('./pages/PdfToImagePage.jsx'));
 const PdfProtectPage = lazy(() => import('./pages/PdfProtectPage.jsx'));
+const PdfOrganizePage = lazy(() => import('./pages/PdfOrganizePage.jsx'));
 const ImageCompressPage = lazy(() => import('./pages/ImageCompressPage.jsx'));
+const ImageResizePage = lazy(() => import('./pages/ImageResizePage.jsx'));
 const ImageToPdfPage = lazy(() => import('./pages/ImageToPdfPage.jsx'));
 const ImageConvertPage = lazy(() => import('./pages/ImageConvertPage.jsx'));
 const FileEncryptPage = lazy(() => import('./pages/FileEncryptPage.jsx'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage.jsx'));
 const TermsPage = lazy(() => import('./pages/TermsPage.jsx'));
+const AboutPage = lazy(() => import('./pages/AboutPage.jsx'));
+const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'));
 const BlogPage = lazy(() => import('./pages/BlogPage.jsx'));
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage.jsx'));
 
@@ -47,6 +53,7 @@ function App() {
       <Router>
         <GlobalDropZone>
           <ScrollToTop />
+          <RouteMetadata />
           <Toaster />
           <Suspense fallback={<PageLoader />}>
             <Routes>
@@ -56,18 +63,22 @@ function App() {
               <Route path="/pdf/split" element={<PdfSplitPage />} />
               <Route path="/pdf/to-image" element={<PdfToImagePage />} />
               <Route path="/pdf/protect" element={<PdfProtectPage />} />
+              <Route path="/pdf/organize" element={<PdfOrganizePage />} />
               <Route path="/image" element={<ImageCompressPage />} />
               <Route path="/images" element={<ImageCompressPage />} />
               <Route path="/png" element={<ImageCompressPage />} />
               <Route path="/jpg" element={<ImageCompressPage />} />
+              <Route path="/image/resize" element={<ImageResizePage />} />
               <Route path="/image/to-pdf" element={<ImageToPdfPage />} />
               <Route path="/image/convert" element={<ImageConvertPage />} />
               <Route path="/encrypt" element={<FileEncryptPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
           <MobileBottomNav />

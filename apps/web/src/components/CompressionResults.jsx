@@ -82,6 +82,9 @@ const CompressionResults = ({ results = [], preset, type = 'pdf', onDownload, on
               </p>
               <p className="text-sm text-muted-foreground">
                 Preset: <span className="font-medium text-foreground">{presetLabels[preset] || preset}</span>
+                {results[0]?.targetSizeBytes && (
+                  <span className="ml-2">• Target: <span className="font-medium text-foreground">{formatFileSize(results[0].targetSizeBytes)}</span></span>
+                )}
                 {errorCount > 0 && (
                   <span className="text-destructive ml-2">• {errorCount} failed</span>
                 )}
@@ -156,6 +159,7 @@ const CompressionResults = ({ results = [], preset, type = 'pdf', onDownload, on
                           ? <span className="text-destructive">{result.error}</span>
                           : `${formatFileSize(result.originalSize)} → ${formatFileSize(result.compressedSize)}`
                         }
+                        {!result.error && result.targetSizeBytes && ` • Target: ${formatFileSize(result.targetSizeBytes)}`}
                       </p>
                     </div>
                     {!result.error && (

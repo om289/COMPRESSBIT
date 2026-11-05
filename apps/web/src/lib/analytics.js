@@ -6,7 +6,7 @@
 
 export const trackEvent = (eventName, params = {}) => {
   // Check if we are in development mode or if custom logs are enabled
-  const isDev = process.env.NODE_ENV === 'development' || import.meta.env?.DEV;
+  const isDev = import.meta.env.DEV;
 
   const eventPayload = {
     event: eventName,
@@ -35,7 +35,7 @@ export const trackEvent = (eventName, params = {}) => {
 };
 
 export const trackPageView = (path) => {
-  const isDev = process.env.NODE_ENV === 'development' || import.meta.env?.DEV;
+  const isDev = import.meta.env.DEV;
   
   if (isDev) {
     console.log(`[Analytics PageView Logged]: ${path || window.location.pathname}`);

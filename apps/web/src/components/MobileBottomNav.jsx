@@ -8,7 +8,7 @@ export const MobileBottomNav = () => {
 
   const items = [
     {
-      label: 'Dashboard',
+      label: 'Home',
       path: '/',
       icon: LayoutDashboard,
     },

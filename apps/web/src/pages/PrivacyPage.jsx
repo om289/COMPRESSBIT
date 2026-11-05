@@ -33,7 +33,7 @@ const PrivacyPage = () => {
                   Privacy Policy
                 </h1>
                 <p className="text-muted-foreground text-lg">
-                  Last updated: May 2026
+                  Last updated: November 5, 2026
                 </p>
               </motion.div>
 
@@ -120,7 +120,7 @@ const PrivacyPage = () => {
                 <section className="space-y-4">
                   <h2 className="text-2xl font-bold text-foreground">Contact</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    If you have any questions about this privacy policy, you can reach us through the contact information provided on our website.
+                    If you have questions about this privacy policy, please visit our <a href="/contact" className="text-primary hover:underline">Contact &amp; Support page</a>. Do not include private files, passwords, or personal information in a public support request.
                   </p>
                 </section>
               </motion.article>

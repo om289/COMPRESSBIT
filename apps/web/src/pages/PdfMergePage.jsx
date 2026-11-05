@@ -98,8 +98,10 @@ const PdfMergePage = () => {
   };
 
   // --- Drag reorder ---
-  const handleDragStart = (id) => {
+  const handleDragStart = (event, id) => {
     setDragSrcId(id);
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', String(id));
   };
 
   const handleDragOver = (e) => {
@@ -446,9 +448,10 @@ const PdfMergePage = () => {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: 20 }}
                             draggable
-                            onDragStart={() => handleDragStart(item.id)}
+                            onDragStart={(e) => handleDragStart(e, item.id)}
                             onDragOver={handleDragOver}
                             onDrop={(e) => { e.preventDefault(); handleReorderDrop(item.id); }}
+                            onDragEnd={() => setDragSrcId(null)}
                             className={`flex items-center gap-3 p-3 bg-card border border-border rounded-2xl cursor-grab active:cursor-grabbing transition-all duration-200 hover:border-primary/30 ${
                               dragSrcId === item.id ? 'opacity-40 scale-[0.98]' : ''
                             }`}

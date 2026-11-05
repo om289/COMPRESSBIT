@@ -33,7 +33,7 @@ const TermsPage = () => {
                   Terms of Service
                 </h1>
                 <p className="text-muted-foreground text-lg">
-                  Last updated: May 2026
+                  Last updated: November 5, 2026
                 </p>
               </motion.div>
 
@@ -130,7 +130,7 @@ const TermsPage = () => {
                 <section className="space-y-4">
                   <h2 className="text-2xl font-bold text-foreground">10. Contact</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    If you have questions about these Terms of Service, please reach out to us through the contact information provided on our website.
+                    If you have questions about these Terms of Service, please visit our <a href="/contact" className="text-primary hover:underline">Contact &amp; Support page</a>.
                   </p>
                 </section>
               </motion.article>

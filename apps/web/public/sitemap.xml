@@ -7,82 +7,117 @@
 
 <url>
   <loc>https://www.compressbit.com/</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/pdf</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/pdf/merge</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/pdf/split</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.compressbit.com/pdf/organize</loc>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/pdf/to-image</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/pdf/protect</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/image</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.compressbit.com/image/resize</loc>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/image/to-pdf</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/image/convert</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/encrypt</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/privacy</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.30</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/terms</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.30</priority>
 </url>
 <url>
+  <loc>https://www.compressbit.com/about</loc>
+  <lastmod>2026-11-05T00:00:00+00:00</lastmod>
+  <priority>0.50</priority>
+</url>
+<url>
+  <loc>https://www.compressbit.com/contact</loc>
+  <lastmod>2026-11-05T00:00:00+00:00</lastmod>
+  <priority>0.50</priority>
+</url>
+<url>
   <loc>https://www.compressbit.com/blog</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.70</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/blog/why-local-file-compression-is-safer-than-cloud</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/blog/understanding-pdf-compression-lossy-vs-lossless</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
   <priority>0.60</priority>
 </url>
 <url>
   <loc>https://www.compressbit.com/blog/guide-to-secure-browser-based-file-encryption</loc>
-  <lastmod>2026-05-31T00:00:00+00:00</lastmod>
+  <lastmod>2026-09-22T00:00:00+00:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://www.compressbit.com/blog/how-to-reduce-pdf-size-for-email</loc>
+  <lastmod>2026-11-05T00:00:00+00:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://www.compressbit.com/blog/choose-image-format-jpg-png-webp</loc>
+  <lastmod>2026-11-05T00:00:00+00:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://www.compressbit.com/blog/prepare-private-documents-before-sharing</loc>
+  <lastmod>2026-11-05T00:00:00+00:00</lastmod>
   <priority>0.60</priority>
 </url>
 

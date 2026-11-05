@@ -34,6 +34,10 @@ const ImageConvertPage = () => {
   // Conversion configurations
   const [targetFormat, setTargetFormat] = useState('png'); // 'png', 'jpeg', or 'webp'
   const [quality, setQuality] = useState(90); // 1-100 (for jpeg/webp)
+  const [maxWidth, setMaxWidth] = useState('');
+  const [maxHeight, setMaxHeight] = useState('');
+  const [enhanceScan, setEnhanceScan] = useState(false);
+  const [watermarkText, setWatermarkText] = useState('');
   
   // Results: array of { fileName: string, originalSize: number, convertedSize: number, convertedBlob: Blob, targetFormat: string, error?: string }
   const [results, setResults] = useState(null);
@@ -111,7 +115,12 @@ const ImageConvertPage = () => {
         const file = files[i];
         
         try {
-          const res = await convertImageFormat(file, targetFormat, qValue);
+          const res = await convertImageFormat(file, targetFormat, qValue, {
+            maxWidth,
+            maxHeight,
+            enhanceScan,
+            watermarkText
+          });
           convertedResults.push(res);
         } catch (err) {
           console.error(`Error converting ${file.name}:`, err);
@@ -207,6 +216,10 @@ const ImageConvertPage = () => {
     setResults(null);
     setTargetFormat('png');
     setQuality(90);
+    setMaxWidth('');
+    setMaxHeight('');
+    setEnhanceScan(false);
+    setWatermarkText('');
     setProgress(0);
     setError('');
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -553,6 +566,48 @@ const ImageConvertPage = () => {
                             : 'Higher quality yields clearer images but results in larger file sizes.'
                           }
                         </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 border border-border bg-card rounded-2xl">
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-foreground">Batch resize <span className="text-muted-foreground font-normal">(optional)</span></label>
+                        <div className="grid grid-cols-2 gap-3">
+                          <input
+                            type="number"
+                            min="1"
+                            value={maxWidth}
+                            onChange={(event) => setMaxWidth(event.target.value)}
+                            placeholder="Max width px"
+                            className="h-10 px-3 rounded-xl bg-background border border-border text-sm"
+                          />
+                          <input
+                            type="number"
+                            min="1"
+                            value={maxHeight}
+                            onChange={(event) => setMaxHeight(event.target.value)}
+                            placeholder="Max height px"
+                            className="h-10 px-3 rounded-xl bg-background border border-border text-sm"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground">Keeps each image’s aspect ratio; blank fields keep its original dimensions.</p>
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-sm font-semibold text-foreground">Extra processing</label>
+                        <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                          <input type="checkbox" checked={enhanceScan} onChange={(event) => setEnhanceScan(event.target.checked)} className="accent-primary" />
+                          Enhance document scans (contrast + grayscale)
+                        </label>
+                        <input
+                          type="text"
+                          maxLength="80"
+                          value={watermarkText}
+                          onChange={(event) => setWatermarkText(event.target.value)}
+                          placeholder="Optional text watermark"
+                          className="w-full h-10 px-3 rounded-xl bg-background border border-border text-sm"
+                        />
+                        <p className="text-xs text-muted-foreground">Metadata such as camera and location tags is removed from every converted file.</p>
                       </div>
                     </div>
 

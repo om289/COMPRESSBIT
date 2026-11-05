@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, FileText, ChevronDown, Image as ImageIcon, LayoutDashboard, Layers, Lock, Scissors, Sun, Moon, BookOpen } from 'lucide-react';
+import { Menu, X, FileText, ChevronDown, Image as ImageIcon, LayoutDashboard, Layers, Lock, Scissors, Sun, Moon, BookOpen, RotateCw, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
@@ -13,7 +13,7 @@ const Header = () => {
   const { theme, setTheme } = useTheme();
 
   const navLinks = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Home', path: '/', icon: LayoutDashboard },
     {
       name: 'PDF Tools',
       icon: FileText,
@@ -21,6 +21,7 @@ const Header = () => {
         { name: 'Compress PDF', path: '/pdf', icon: FileText },
         { name: 'Merge PDF', path: '/pdf/merge', icon: Layers },
         { name: 'Split PDF', path: '/pdf/split', icon: Scissors },
+        { name: 'Organize & Rotate PDF', path: '/pdf/organize', icon: RotateCw },
         { name: 'PDF to Image', path: '/pdf/to-image', icon: ImageIcon },
         { name: 'Protect PDF', path: '/pdf/protect', icon: Lock },
       ]
@@ -30,6 +31,7 @@ const Header = () => {
       icon: ImageIcon,
       submenu: [
         { name: 'Compress Image', path: '/image', icon: ImageIcon },
+        { name: 'Resize Image', path: '/image/resize', icon: Maximize2 },
         { name: 'Image to PDF', path: '/image/to-pdf', icon: FileText },
         { name: 'Convert Image', path: '/image/convert', icon: Layers },
       ]
@@ -40,13 +42,15 @@ const Header = () => {
 
   // Mobile flat list
   const mobileLinks = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Home', path: '/', icon: LayoutDashboard },
     { name: 'Compress PDF', path: '/pdf', icon: FileText },
     { name: 'Merge PDF', path: '/pdf/merge', icon: Layers },
     { name: 'Split PDF', path: '/pdf/split', icon: Scissors },
+    { name: 'Organize & Rotate PDF', path: '/pdf/organize', icon: RotateCw },
     { name: 'PDF to Image', path: '/pdf/to-image', icon: ImageIcon },
     { name: 'Protect PDF', path: '/pdf/protect', icon: Lock },
     { name: 'Compress Image', path: '/image', icon: ImageIcon },
+    { name: 'Resize Image', path: '/image/resize', icon: Maximize2 },
     { name: 'Image to PDF', path: '/image/to-pdf', icon: FileText },
     { name: 'Convert Image', path: '/image/convert', icon: Layers },
     { name: 'File Encryptor', path: '/encrypt', icon: Lock },

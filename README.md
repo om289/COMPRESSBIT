@@ -43,6 +43,18 @@ Secures any file format locally in the browser utilizing the native Web Crypto A
 *   **PBKDF2 Key Derivation**: Derives a cryptographically strong 256-bit key from passwords using a random salt and 100,000 iterations (SHA-256).
 *   **AES-256-GCM Encryption**: Encrypts file data and metadata (original name, mime-type, and size) using Galois/Counter Mode for confidentiality and integrity verification. Output is packaged into a download-ready `.enc` container.
 
+### 5. The PDF Organizer Engine (`/pdf/organize`)
+Visual page management and restructuring running 100% client-side.
+*   **Visual Grid Rendering**: Employs `pdfjs-dist` to dynamically render high-speed page thumbnail previews.
+*   **Vector-Safe Rotation & Splicing**: Applies arbitrary 90°, 180°, and 270° orientation transforms via `pdf-lib` degrees API without rasterization, preserving sharp vector typography, links, and forms.
+*   **Page Rearrangement & Duplication**: Allows reordering pages, reversing layout, duplicating key sheets, and pruning unwanted pages with automatic output compilation.
+
+### 6. The Image Resizer Engine (`/image/resize`)
+Precision client-side dimension scaling and social media format normalization.
+*   **Flexible Dimensional Scaling**: Adjusts width and height with real-time aspect ratio calculation or percentage stepping.
+*   **Social Media Presets**: Built-in target dimensions for Instagram Square, Instagram Stories (9:16), YouTube Thumbnails, Twitter/X, and Facebook banners.
+*   **Fit & Crop Modes**: Supports exact stretch, cover (center-crop), and contain (padded aspect fit) with format conversion (PNG, JPG, WebP) and quality control.
+
 ---
 
 ## ⚙️ Compression Tiers Deep Dive

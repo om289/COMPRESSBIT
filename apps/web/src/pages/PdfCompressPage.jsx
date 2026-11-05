@@ -180,7 +180,7 @@ const PdfCompressPage = () => {
     },
     {
       question: "What is the maximum file size limit?",
-      answer: "Since compression runs locally in your browser's memory, there are no hard platform limits! It is only restricted by your computer's RAM. We recommend compressing files up to 2GB for the smoothest experience."
+      answer: "The current upload area accepts PDF files up to 100MB each. Keeping the limit practical helps prevent browser-memory errors, especially on mobile devices or when processing several files at once."
     },
     {
       question: "Can I compress multiple PDFs at once?",

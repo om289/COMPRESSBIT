@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, useScroll, useSpring } from 'framer-motion';
-import { Calendar, Clock, ArrowLeft, Share2, Copy, Check, Tag } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, Copy, Check } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header.jsx';
@@ -67,6 +67,7 @@ export const BlogPostPage = () => {
       <Helmet>
         <title>{post.title} | CompressBit</title>
         <meta name="description" content={post.excerpt} />
+        <link rel="canonical" href={`https://www.compressbit.com/blog/${post.slug}`} />
         
         {/* Open Graph / Social Sharing Tags */}
         <meta property="og:title" content={`${post.title} - CompressBit`} />
@@ -78,6 +79,13 @@ export const BlogPostPage = () => {
         <meta name="twitter:title" content={`${post.title} - CompressBit`} />
         <meta name="twitter:description" content={post.excerpt} />
         <meta name="twitter:image" content="https://www.compressbit.com/og-image.png" />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org', '@type': 'Article', headline: post.title,
+          description: post.excerpt, datePublished: post.date, dateModified: post.date,
+          author: { '@type': 'Organization', name: post.author || 'CompressBit Editorial Team' },
+          publisher: { '@type': 'Organization', name: 'CompressBit', url: 'https://www.compressbit.com' },
+          mainEntityOfPage: `https://www.compressbit.com/blog/${post.slug}`
+        })}</script>
       </Helmet>
 
       {/* Reading Progress Indicator */}
@@ -132,6 +140,8 @@ export const BlogPostPage = () => {
                     <Clock className="w-4 h-4" />
                     {post.readTime}
                   </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-border" />
+                  <span className="font-medium">By {post.author || 'CompressBit Editorial Team'}</span>
                 </div>
 
                 <div className="flex items-center gap-2">

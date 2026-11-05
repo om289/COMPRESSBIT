@@ -6,6 +6,8 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = [
+    { name: 'About CompressBit', path: '/about' },
+    { name: 'Contact & Support', path: '/contact' },
     { name: 'Privacy Policy', path: '/privacy' },
     { name: 'Terms of Service', path: '/terms' },
     { name: 'Blog & Resources', path: '/blog' }
@@ -15,9 +17,11 @@ const Footer = () => {
     { name: 'PDF Compressor', path: '/pdf' },
     { name: 'PDF Merger', path: '/pdf/merge' },
     { name: 'PDF Splitter', path: '/pdf/split' },
+    { name: 'Organize PDF', path: '/pdf/organize' },
     { name: 'PDF to Image', path: '/pdf/to-image' },
     { name: 'Protect PDF', path: '/pdf/protect' },
     { name: 'Image Compressor', path: '/image' },
+    { name: 'Resize Image', path: '/image/resize' },
     { name: 'Image to PDF', path: '/image/to-pdf' },
     { name: 'Convert Image', path: '/image/convert' },
     { name: 'File Encryptor', path: '/encrypt' }

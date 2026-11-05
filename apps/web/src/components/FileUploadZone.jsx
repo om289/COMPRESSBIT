@@ -21,6 +21,7 @@ const FileUploadZone = ({ onCompressionComplete, type = 'pdf', compressionFn, in
   const [progress, setProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
+  const [targetSizeKb, setTargetSizeKb] = useState('');
   const fileInputRef = useRef(null);
 
   React.useEffect(() => {
@@ -108,7 +109,12 @@ const FileUploadZone = ({ onCompressionComplete, type = 'pdf', compressionFn, in
 
       try {
         const file = files[i];
-        const compressedData = await (compressionFn ? compressionFn(file, preset) : compressPdfClient(file, preset));
+        const targetSizeBytes = isImage && Number(targetSizeKb) > 0
+          ? Math.round(Number(targetSizeKb) * 1024)
+          : undefined;
+        const compressedData = await (compressionFn
+          ? compressionFn(file, preset, { targetSizeBytes })
+          : compressPdfClient(file, preset));
 
         const resultBlob = compressedData instanceof Blob
           ? compressedData
@@ -125,6 +131,7 @@ const FileUploadZone = ({ onCompressionComplete, type = 'pdf', compressionFn, in
           fileName: file.name,
           compressedData: resultBlob,
           preset,
+          targetSizeBytes,
           originalFile: file
         });
       } catch (err) {
@@ -153,6 +160,7 @@ const FileUploadZone = ({ onCompressionComplete, type = 'pdf', compressionFn, in
     setFiles([]);
     setError('');
     setPreset('aggressive');
+    setTargetSizeKb('');
     setIsCompressing(false);
     setProgress(0);
   };
@@ -318,6 +326,29 @@ const FileUploadZone = ({ onCompressionComplete, type = 'pdf', compressionFn, in
         </div>
 
         <PresetCompressionButtons value={preset} onChange={setPreset} />
+
+        {isImage && (
+          <div className="rounded-2xl border border-border bg-card p-4 space-y-1.5">
+            <label htmlFor="target-size-kb" className="block text-sm font-semibold text-foreground">
+              Target file size <span className="text-muted-foreground font-normal">(optional)</span>
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="target-size-kb"
+                type="number"
+                min="1"
+                max="102400"
+                inputMode="decimal"
+                value={targetSizeKb}
+                onChange={(event) => setTargetSizeKb(event.target.value)}
+                placeholder="e.g. 200"
+                className="w-32 h-10 px-3 rounded-xl bg-background border border-border text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+              <span className="text-sm text-muted-foreground">KB per image</span>
+            </div>
+            <p className="text-xs text-muted-foreground">CompressBit will reduce quality and dimensions only as needed to reach this size.</p>
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row gap-4 pt-4">
           <Button

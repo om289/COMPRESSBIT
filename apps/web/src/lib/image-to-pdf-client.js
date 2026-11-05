@@ -20,7 +20,7 @@ const loadImage = (file) => {
  * 
  * @param {File[]} files - Array of image files (JPG, PNG, WebP)
  * @param {object} options - Configuration options:
- * @param {string} options.pageSize - 'a4', 'letter', or 'fit'
+ * @param {string} options.pageSize - 'a4', 'a5', 'letter', 'photo', or 'fit'
  * @param {string} options.margin - 'none', 'small', 'large'
  * @param {string} options.orientation - 'auto', 'portrait', 'landscape'
  * @param {function} onProgress - Optional callback for tracking progress (pct, label)
@@ -58,9 +58,16 @@ export async function convertImagesToPdf(files, options = {}, onProgress) {
       if (pageSize === 'a4') {
         pageW = pageOrientation === 'portrait' ? 595.28 : 841.89;
         pageH = pageOrientation === 'portrait' ? 841.89 : 595.28;
+      } else if (pageSize === 'a5') {
+        pageW = pageOrientation === 'portrait' ? 419.53 : 595.28;
+        pageH = pageOrientation === 'portrait' ? 595.28 : 419.53;
       } else if (pageSize === 'letter') {
         pageW = pageOrientation === 'portrait' ? 612 : 792;
         pageH = pageOrientation === 'portrait' ? 792 : 612;
+      } else if (pageSize === 'photo') {
+        // Standard 4 × 6 inch print at PDF points (72 points per inch).
+        pageW = pageOrientation === 'portrait' ? 288 : 432;
+        pageH = pageOrientation === 'portrait' ? 432 : 288;
       } else {
         // Fit to image size (72 pt per inch)
         pageW = imgW;
@@ -89,7 +96,7 @@ export async function convertImagesToPdf(files, options = {}, onProgress) {
       const drawX = marginPt + (availableW - drawW) / 2;
       const drawY = marginPt + (availableH - drawH) / 2;
 
-      const formatArg = pageSize === 'fit' ? [pageW, pageH] : pageSize;
+      const formatArg = ['fit', 'photo'].includes(pageSize) ? [pageW, pageH] : pageSize;
 
       if (i === 0) {
         doc = new jsPDF({
@@ -101,11 +108,21 @@ export async function convertImagesToPdf(files, options = {}, onProgress) {
         doc.addPage(formatArg, pageOrientation);
       }
 
-      const imgFormat = file.type === 'image/png' ? 'PNG' : 'JPEG';
-      
-      // Add image directly to document
-      doc.addImage(img, imgFormat, drawX, drawY, drawW, drawH, undefined, 'FAST');
-      
+      // jsPDF does not reliably detect every browser-decoded image format (notably
+      // WebP). Convert the already decoded image to a known format first so every
+      // format accepted by the picker can be written to the PDF.
+      const canvas = document.createElement('canvas');
+      canvas.width = imgW;
+      canvas.height = imgH;
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('Your browser could not prepare this image for PDF export.');
+      context.drawImage(img, 0, 0);
+      const hasTransparency = file.type === 'image/png' || file.type === 'image/webp';
+      const imageData = canvas.toDataURL(hasTransparency ? 'image/png' : 'image/jpeg', 0.92);
+      doc.addImage(imageData, hasTransparency ? 'PNG' : 'JPEG', drawX, drawY, drawW, drawH, undefined, 'FAST');
+
+      canvas.width = 0;
+      canvas.height = 0;
       URL.revokeObjectURL(url);
     } catch (err) {
       throw new Error(`Failed to process "${file.name}": ${err.message}`);

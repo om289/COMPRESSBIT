@@ -11,7 +11,13 @@ import {
   ArrowRight,
   Sparkles,
   Github,
-  Scissors
+  Scissors,
+  RotateCw,
+  Maximize2,
+  CheckCircle2,
+  FileSearch,
+  Download,
+  HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -50,6 +56,15 @@ const DashboardPage = () => {
       active: true
     },
     {
+      id: 'pdf-organize',
+      title: 'Organize PDF',
+      description: 'Rotate, reorder, duplicate, and delete pages of your PDF documents visually.',
+      icon: RotateCw,
+      path: '/pdf/organize',
+      color: 'bg-rose-500/10 text-rose-500',
+      active: true
+    },
+    {
       id: 'pdf-to-image',
       title: 'PDF to Image',
       description: 'Convert PDF pages into high-quality PNG or JPEG images in your browser.',
@@ -65,6 +80,15 @@ const DashboardPage = () => {
       icon: ImageIcon,
       path: '/image',
       color: 'bg-blue-500/10 text-blue-500',
+      active: true
+    },
+    {
+      id: 'image-resize',
+      title: 'Image Resizer',
+      description: 'Scale and resize images by dimensions, percentages, or social media presets.',
+      icon: Maximize2,
+      path: '/image/resize',
+      color: 'bg-cyan-500/10 text-cyan-500',
       active: true
     },
     {
@@ -149,11 +173,34 @@ const DashboardPage = () => {
                   <Button size="lg" asChild className="h-12 px-8 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20">
                     <a href="#tools">Explore Tools</a>
                   </Button>
-                  <Button variant="outline" size="lg" className="h-12 px-8 rounded-xl bg-card border-border">
-                    Learn how it works
+                  <Button variant="outline" size="lg" asChild className="h-12 px-8 rounded-xl bg-card border-border">
+                    <a href="#how-it-works">Learn how it works</a>
                   </Button>
                 </div>
               </motion.div>
+            </div>
+          </section>
+
+          <section id="how-it-works" className="py-20 border-y border-border bg-card/20">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="max-w-3xl mx-auto text-center mb-12 space-y-4">
+                <Badge variant="outline" className="text-primary border-primary/20">A simple, private workflow</Badge>
+                <h2 className="text-3xl md:text-4xl font-bold">How CompressBit works</h2>
+                <p className="text-muted-foreground leading-relaxed">Choose a tool, select a file from your device, and download the result when it is ready. File processing takes place in your browser, so there is no account setup or cloud upload queue.</p>
+              </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                {[
+                  { icon: FileSearch, title: '1. Choose your file', text: 'Pick the PDF or image you want to compress, convert, organise, or protect. You can also drag files into a supported tool.' },
+                  { icon: Zap, title: '2. Process in your browser', text: 'The selected tool uses your browser to transform the file. Processing speed depends on the file, your device, and the selected settings.' },
+                  { icon: Download, title: '3. Save the result', text: 'Review the result and download it directly to your device. You stay in control of where your output is stored.' }
+                ].map(({ icon: Icon, title, text }) => (
+                  <Card key={title} className="p-7 bg-card border-border">
+                    <Icon className="w-7 h-7 text-primary mb-5" />
+                    <h3 className="text-lg font-bold mb-2">{title}</h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{text}</p>
+                  </Card>
+                ))}
+              </div>
             </div>
           </section>
 
@@ -208,6 +255,25 @@ const DashboardPage = () => {
             </div>
           </section>
 
+          <section className="py-20">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[1.1fr_.9fr] gap-12 items-start">
+              <div className="space-y-5">
+                <Badge variant="outline" className="text-primary border-primary/20">Made for everyday file tasks</Badge>
+                <h2 className="text-3xl md:text-4xl font-bold">Useful when file size, sharing, or privacy matters</h2>
+                <p className="text-muted-foreground leading-relaxed">CompressBit is designed for practical work: making a PDF small enough to attach to an email, preparing website images, combining scanned pages, or keeping a sensitive document protected before you share it.</p>
+                <p className="text-muted-foreground leading-relaxed">Each tool explains its supported formats and options before you begin. For a deeper explanation of compression choices and browser-based privacy, visit our <Link to="/blog" className="text-primary font-semibold hover:underline">guides and resources</Link>.</p>
+              </div>
+              <Card className="p-7 bg-card border-border space-y-5">
+                {[
+                  'Reduce a large PDF before sending it by email or uploading it to a portal.',
+                  'Resize and convert images for websites, forms, presentations, and social posts.',
+                  'Merge, split, rotate, or reorder document pages without creating an account.',
+                  'Use password protection or file encryption when you need an extra layer of control.'
+                ].map((item) => <div key={item} className="flex gap-3 text-sm text-muted-foreground leading-relaxed"><CheckCircle2 className="w-5 h-5 text-primary shrink-0" />{item}</div>)}
+              </Card>
+            </div>
+          </section>
+
           {/* Highlight Section */}
           <section className="py-32">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -256,6 +322,23 @@ const DashboardPage = () => {
                   </div>
                 </div>
               </Card>
+            </div>
+          </section>
+
+          <section className="py-20 bg-card/30 border-y border-border">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-10">
+                <HelpCircle className="w-8 h-8 text-primary mx-auto mb-3" />
+                <h2 className="text-3xl font-bold">Common questions</h2>
+              </div>
+              <div className="space-y-5">
+                {[
+                  ['Do I need an account?', 'No. CompressBit tools are available without account registration or a login.'],
+                  ['Are my files uploaded to CompressBit?', 'The tools are designed to process selected files in your browser. The file itself is not sent to a CompressBit processing server. See our Privacy Policy for details about analytics and third-party services.'],
+                  ['Which tool should I use?', 'Start with PDF Compressor or Image Compressor to reduce file size. Use Merge, Split, Organize, or Convert when you need to change the document structure or format.'],
+                  ['Can I use CompressBit on mobile?', 'Yes. Modern mobile browsers can use the tools, although very large files may be faster and more reliable on a desktop computer.']
+                ].map(([question, answer]) => <Card key={question} className="p-6 bg-card border-border"><h3 className="font-bold mb-2">{question}</h3><p className="text-sm text-muted-foreground leading-relaxed">{answer}</p></Card>)}
+              </div>
             </div>
           </section>
         </main>

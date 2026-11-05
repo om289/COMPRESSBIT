@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FileText, Upload, X, ImageIcon, ArrowRight, AlertCircle,
+  FileText, Upload, X, ImageIcon, ArrowLeft, ArrowRight, AlertCircle,
   CheckCircle2, Download, Plus, Loader2, Shield, Zap,
   UserCheck, Sparkles, GripVertical, FileSpreadsheet
 } from 'lucide-react';
@@ -109,12 +109,15 @@ const ImageToPdfPage = () => {
   };
 
   // Drag and drop reordering
-  const handleDragStart = (id) => {
+  const handleDragStart = (event, id) => {
     setDragSrcId(id);
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', String(id));
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
   };
 
   const handleReorderDrop = (targetId) => {
@@ -130,6 +133,16 @@ const ImageToPdfPage = () => {
       return arr;
     });
     setDragSrcId(null);
+  };
+
+  const moveImage = (fromIndex, toIndex) => {
+    if (toIndex < 0 || toIndex >= images.length) return;
+    setImages((previousImages) => {
+      const reordered = [...previousImages];
+      const [image] = reordered.splice(fromIndex, 1);
+      reordered.splice(toIndex, 0, image);
+      return reordered;
+    });
   };
 
   const handleConvert = async () => {
@@ -434,7 +447,9 @@ const ImageToPdfPage = () => {
                           className="w-full h-11 px-3 rounded-xl bg-card border border-border text-foreground text-sm font-medium focus:outline-none focus:border-primary/50"
                         >
                           <option value="a4">A4 (Standard)</option>
+                          <option value="a5">A5 (Half page)</option>
                           <option value="letter">US Letter</option>
+                          <option value="photo">Photo Print (4 × 6 in)</option>
                           <option value="fit">Fit to Image Size</option>
                         </select>
                       </div>
@@ -473,6 +488,7 @@ const ImageToPdfPage = () => {
                         <span>Arrange Image Sequence</span>
                         <span className="text-xs text-muted-foreground">{images.length} images loaded</span>
                       </div>
+                      <p className="text-xs text-muted-foreground">Drag cards to reorder, or use the arrow buttons on touch devices.</p>
 
                       <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 border border-border p-4 bg-muted/20 rounded-2xl max-h-96 overflow-y-auto">
                         <AnimatePresence>
@@ -483,9 +499,10 @@ const ImageToPdfPage = () => {
                               animate={{ opacity: 1, scale: 1 }}
                               exit={{ opacity: 0, scale: 0.9 }}
                               draggable
-                              onDragStart={() => handleDragStart(item.id)}
+                              onDragStart={(e) => handleDragStart(e, item.id)}
                               onDragOver={handleDragOver}
                               onDrop={(e) => { e.preventDefault(); handleReorderDrop(item.id); }}
+                              onDragEnd={() => setDragSrcId(null)}
                               className={`group relative aspect-square border rounded-xl overflow-hidden cursor-grab active:cursor-grabbing bg-card hover:border-primary/30 transition-all ${
                                 dragSrcId === item.id ? 'opacity-40 scale-[0.98]' : ''
                               }`}
@@ -493,6 +510,7 @@ const ImageToPdfPage = () => {
                               <img
                                 src={item.preview}
                                 alt={item.name}
+                                draggable={false}
                                 className="w-full h-full object-cover select-none"
                               />
                               
@@ -501,11 +519,31 @@ const ImageToPdfPage = () => {
                                 {index + 1}
                               </div>
 
+                              <button
+                                type="button"
+                                aria-label={`Move ${item.name} earlier`}
+                                disabled={index === 0}
+                                onClick={(e) => { e.stopPropagation(); moveImage(index, index - 1); }}
+                                className="absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-black/60 hover:bg-primary/90 text-foreground border border-border/30 flex items-center justify-center transition-all sm:opacity-0 sm:group-hover:opacity-100 disabled:opacity-30 disabled:pointer-events-none"
+                              >
+                                <ArrowLeft className="w-3.5 h-3.5" />
+                              </button>
+
+                              <button
+                                type="button"
+                                aria-label={`Move ${item.name} later`}
+                                disabled={index === images.length - 1}
+                                onClick={(e) => { e.stopPropagation(); moveImage(index, index + 1); }}
+                                className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg bg-black/60 hover:bg-primary/90 text-foreground border border-border/30 flex items-center justify-center transition-all sm:opacity-0 sm:group-hover:opacity-100 disabled:opacity-30 disabled:pointer-events-none"
+                              >
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </button>
+
                               {/* Delete button overlay */}
                               <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); removeImage(item.id); }}
-                                className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-black/60 hover:bg-red-500/90 text-foreground border border-border/30 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                                className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-black/60 hover:bg-red-500/90 text-foreground border border-border/30 flex items-center justify-center transition-all sm:opacity-0 sm:group-hover:opacity-100"
                               >
                                 <X className="w-3.5 h-3.5" />
                               </button>
