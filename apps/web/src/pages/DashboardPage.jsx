@@ -17,7 +17,8 @@ import {
   CheckCircle2,
   FileSearch,
   Download,
-  HelpCircle
+  HelpCircle,
+  Wrench
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -125,6 +126,15 @@ const DashboardPage = () => {
       icon: Lock,
       path: '/encrypt',
       color: 'bg-emerald-500/10 text-emerald-500',
+      active: true
+    },
+    {
+      id: 'daily-tools',
+      title: 'Daily Tools',
+      description: 'Generate QR codes, barcodes, passwords, UUIDs, and SHA-256 file hashes locally.',
+      icon: Wrench,
+      path: '/tools',
+      color: 'bg-violet-500/10 text-violet-500',
       active: true
     }
   ];

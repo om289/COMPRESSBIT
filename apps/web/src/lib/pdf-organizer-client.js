@@ -12,7 +12,11 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
  * @param {function} onProgress - (pct, label)
  * @param {object} options - Optional annotations to add to exported pages.
  * @param {boolean} options.addPageNumbers - Add sequential page numbers.
+ * @param {string} options.pageNumberPosition - Position for page numbers.
  * @param {string} options.watermarkText - Add centered watermark or signature text.
+ * @param {number} options.cropMargin - Crop equal margins from each non-blank page, in points.
+ * @param {File} options.signatureFile - Optional PNG or JPEG signature image.
+ * @param {string} options.signaturePosition - Position for the signature image.
  * @returns {Promise<{ totalPages: number, pages: Array<{ id: string, originalIndex: number, pageNum: number, url: string, rotation: number, width: number, height: number }> }>}
  */
 export async function loadPdfPagesWithThumbnails(file, onProgress) {
@@ -89,6 +93,14 @@ export async function reorganizePdf(file, pageConfigs, onProgress, options = {})
 
   const newPdf = await PDFDocument.create();
   const total = pageConfigs.length;
+  let signatureImage = null;
+  if (options.signatureFile) {
+    const signatureBytes = await options.signatureFile.arrayBuffer();
+    const signatureType = options.signatureFile.type;
+    if (signatureType === 'image/png') signatureImage = await newPdf.embedPng(signatureBytes);
+    else if (signatureType === 'image/jpeg' || signatureType === 'image/jpg') signatureImage = await newPdf.embedJpg(signatureBytes);
+    else throw new Error('Signature image must be a PNG or JPG file.');
+  }
 
   for (let i = 0; i < total; i++) {
     const config = pageConfigs[i];
@@ -97,20 +109,38 @@ export async function reorganizePdf(file, pageConfigs, onProgress, options = {})
       onProgress(pct, `Rebuilding page ${i + 1} of ${total}...`);
     }
 
-    const [copiedPage] = await newPdf.copyPages(srcPdf, [config.originalIndex]);
+    let copiedPage;
+    if (config.isBlank) {
+      copiedPage = newPdf.addPage(config.blankPageSize || [595.28, 841.89]);
+    } else {
+      [copiedPage] = await newPdf.copyPages(srcPdf, [config.originalIndex]);
+    }
 
     // Apply rotation
-    if (config.rotation && config.rotation !== 0) {
+    if (!config.isBlank && config.rotation && config.rotation !== 0) {
       const existingRotation = copiedPage.getRotation().angle || 0;
       const finalRotation = (existingRotation + config.rotation) % 360;
       copiedPage.setRotation(degrees(finalRotation));
     }
 
     const { width, height } = copiedPage.getSize();
+    if (!config.isBlank && Number(options.cropMargin) > 0) {
+      const margin = Math.min(Number(options.cropMargin), width / 4, height / 4);
+      copiedPage.setCropBox(margin, margin, width - margin * 2, height - margin * 2);
+    }
     if (options.addPageNumbers) {
+      const pageNumberText = `Page ${i + 1} of ${total}`;
+      const position = options.pageNumberPosition || 'bottom-left';
+      const numberWidth = pageNumberText.length * 4.6;
+      const numberPosition = {
+        'bottom-left': { x: 28, y: 18 },
+        'bottom-center': { x: (width - numberWidth) / 2, y: 18 },
+        'bottom-right': { x: width - numberWidth - 28, y: 18 },
+        'top-left': { x: 28, y: height - 26 },
+        'top-right': { x: width - numberWidth - 28, y: height - 26 },
+      }[position] || { x: 28, y: 18 };
       copiedPage.drawText(`Page ${i + 1} of ${total}`, {
-        x: 28,
-        y: 18,
+        ...numberPosition,
         size: 9,
         color: rgb(0.28, 0.28, 0.32),
         opacity: 0.85,
@@ -130,7 +160,19 @@ export async function reorganizePdf(file, pageConfigs, onProgress, options = {})
       });
     }
 
-    newPdf.addPage(copiedPage);
+    if (signatureImage) {
+      const signature = signatureImage.scaleToFit(width * 0.28, height * 0.13);
+      const position = options.signaturePosition || 'bottom-right';
+      const signaturePosition = {
+        'bottom-left': { x: 28, y: 28 },
+        'bottom-right': { x: width - signature.width - 28, y: 28 },
+        'top-left': { x: 28, y: height - signature.height - 28 },
+        'top-right': { x: width - signature.width - 28, y: height - signature.height - 28 },
+      }[position] || { x: width - signature.width - 28, y: 28 };
+      copiedPage.drawImage(signatureImage, { ...signaturePosition, width: signature.width, height: signature.height, opacity: 0.95 });
+    }
+
+    if (!config.isBlank) newPdf.addPage(copiedPage);
   }
 
   if (onProgress) onProgress(92, 'Generating optimized PDF file...');

@@ -24,7 +24,8 @@ const Footer = () => {
     { name: 'Resize Image', path: '/image/resize' },
     { name: 'Image to PDF', path: '/image/to-pdf' },
     { name: 'Convert Image', path: '/image/convert' },
-    { name: 'File Encryptor', path: '/encrypt' }
+    { name: 'File Encryptor', path: '/encrypt' },
+    { name: 'Daily Tools', path: '/tools' }
   ];
 
   return (

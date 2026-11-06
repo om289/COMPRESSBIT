@@ -37,6 +37,7 @@ const ImageConvertPage = () => {
   const [maxWidth, setMaxWidth] = useState('');
   const [maxHeight, setMaxHeight] = useState('');
   const [enhanceScan, setEnhanceScan] = useState(false);
+  const [removeWhiteBackground, setRemoveWhiteBackground] = useState(false);
   const [watermarkText, setWatermarkText] = useState('');
   
   // Results: array of { fileName: string, originalSize: number, convertedSize: number, convertedBlob: Blob, targetFormat: string, error?: string }
@@ -119,6 +120,7 @@ const ImageConvertPage = () => {
             maxWidth,
             maxHeight,
             enhanceScan,
+            removeWhiteBackground: targetFormat !== 'jpeg' && removeWhiteBackground,
             watermarkText
           });
           convertedResults.push(res);
@@ -219,6 +221,7 @@ const ImageConvertPage = () => {
     setMaxWidth('');
     setMaxHeight('');
     setEnhanceScan(false);
+    setRemoveWhiteBackground(false);
     setWatermarkText('');
     setProgress(0);
     setError('');
@@ -598,6 +601,10 @@ const ImageConvertPage = () => {
                         <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
                           <input type="checkbox" checked={enhanceScan} onChange={(event) => setEnhanceScan(event.target.checked)} className="accent-primary" />
                           Enhance document scans (contrast + grayscale)
+                        </label>
+                        <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                          <input type="checkbox" checked={removeWhiteBackground} disabled={targetFormat === 'jpeg'} onChange={(event) => setRemoveWhiteBackground(event.target.checked)} className="accent-primary disabled:opacity-40" />
+                          Remove near-white background (PNG/WebP)
                         </label>
                         <input
                           type="text"

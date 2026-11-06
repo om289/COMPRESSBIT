@@ -13,6 +13,7 @@
  * @param {number} options.maxWidth - Maximum output width in pixels.
  * @param {number} options.maxHeight - Maximum output height in pixels.
  * @param {boolean} options.enhanceScan - Increase contrast and remove colour for scans.
+ * @param {boolean} options.removeWhiteBackground - Make near-white pixels transparent.
  * @param {string} options.watermarkText - Optional text watermark.
  * @returns {Promise<{fileName: string, originalSize: number, convertedSize: number, convertedBlob: Blob, targetFormat: string}>}
  */
@@ -56,6 +57,15 @@ export async function convertImageFormat(file, targetFormat, quality = 0.9, opti
             pixels[i] = enhanced;
             pixels[i + 1] = enhanced;
             pixels[i + 2] = enhanced;
+          }
+          ctx.putImageData(imageData, 0, 0);
+        }
+
+        if (options.removeWhiteBackground) {
+          const imageData = ctx.getImageData(0, 0, outputWidth, outputHeight);
+          const pixels = imageData.data;
+          for (let i = 0; i < pixels.length; i += 4) {
+            if (pixels[i] > 238 && pixels[i + 1] > 238 && pixels[i + 2] > 238) pixels[i + 3] = 0;
           }
           ctx.putImageData(imageData, 0, 0);
         }

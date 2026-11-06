@@ -20,6 +20,9 @@ const ImageResizePage = lazy(() => import('./pages/ImageResizePage.jsx'));
 const ImageToPdfPage = lazy(() => import('./pages/ImageToPdfPage.jsx'));
 const ImageConvertPage = lazy(() => import('./pages/ImageConvertPage.jsx'));
 const FileEncryptPage = lazy(() => import('./pages/FileEncryptPage.jsx'));
+const DailyToolsPage = lazy(() => import('./pages/DailyToolsPage.jsx'));
+const OcrPage = lazy(() => import('./pages/OcrPage.jsx'));
+const PdfFillPage = lazy(() => import('./pages/PdfFillPage.jsx'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage.jsx'));
 const TermsPage = lazy(() => import('./pages/TermsPage.jsx'));
 const AboutPage = lazy(() => import('./pages/AboutPage.jsx'));
@@ -72,6 +75,9 @@ function App() {
               <Route path="/image/to-pdf" element={<ImageToPdfPage />} />
               <Route path="/image/convert" element={<ImageConvertPage />} />
               <Route path="/encrypt" element={<FileEncryptPage />} />
+              <Route path="/tools" element={<DailyToolsPage />} />
+              <Route path="/ocr" element={<OcrPage />} />
+              <Route path="/pdf/fill" element={<PdfFillPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/about" element={<AboutPage />} />

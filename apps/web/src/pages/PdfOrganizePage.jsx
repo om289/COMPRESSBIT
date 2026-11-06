@@ -41,6 +41,11 @@ const PdfOrganizePage = () => {
   const [error, setError] = useState('');
   const [draggedPageId, setDraggedPageId] = useState(null);
   const [addPageNumbers, setAddPageNumbers] = useState(false);
+  const [pageNumberPosition, setPageNumberPosition] = useState('bottom-left');
+  const [cropMargin, setCropMargin] = useState('0');
+  const [blankPageSize, setBlankPageSize] = useState('a4');
+  const [signatureFile, setSignatureFile] = useState(null);
+  const [signaturePosition, setSignaturePosition] = useState('bottom-right');
   const [watermarkText, setWatermarkText] = useState('');
 
   const fileInputRef = useRef(null);
@@ -194,6 +199,23 @@ const PdfOrganizePage = () => {
     toast.success('Page duplicated');
   };
 
+  const handleAddBlankPage = () => {
+    const size = blankPageSize === 'letter' ? [612, 792] : blankPageSize === 'a5' ? [419.53, 595.28] : [595.28, 841.89];
+    setPages((previousPages) => ([
+      ...previousPages,
+      {
+        id: `blank-page-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        originalIndex: null,
+        isBlank: true,
+        blankPageSize: size,
+        pageNum: 'Blank',
+        rotation: 0,
+        url: '',
+      },
+    ]));
+    toast.success('Blank page added at the end. Drag it to place it anywhere.');
+  };
+
   const handleResetOrder = () => {
     setPages(JSON.parse(JSON.stringify(originalPages)));
     toast.info('Reset to original page order and rotation');
@@ -213,7 +235,9 @@ const PdfOrganizePage = () => {
     try {
       const pageConfigs = pages.map((p) => ({
         originalIndex: p.originalIndex,
-        rotation: p.rotation || 0
+        rotation: p.rotation || 0,
+        isBlank: Boolean(p.isBlank),
+        blankPageSize: p.blankPageSize,
       }));
 
       const res = await reorganizePdf(
@@ -223,7 +247,7 @@ const PdfOrganizePage = () => {
           setProcessProgress(pct);
           setProcessStatus(status);
         },
-        { addPageNumbers, watermarkText }
+        { addPageNumbers, pageNumberPosition, watermarkText, cropMargin: Number(cropMargin), signatureFile, signaturePosition }
       );
 
       setResult({
@@ -262,6 +286,11 @@ const PdfOrganizePage = () => {
     setResult(null);
     setError('');
     setAddPageNumbers(false);
+    setPageNumberPosition('bottom-left');
+    setCropMargin('0');
+    setBlankPageSize('a4');
+    setSignatureFile(null);
+    setSignaturePosition('bottom-right');
     setWatermarkText('');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -458,6 +487,22 @@ const PdfOrganizePage = () => {
                       Add page numbers
                     </label>
                     <div className="space-y-1">
+                      <label htmlFor="page-number-position" className="text-xs font-semibold text-muted-foreground">Page-number position</label>
+                      <select
+                        id="page-number-position"
+                        value={pageNumberPosition}
+                        disabled={!addPageNumbers}
+                        onChange={(event) => setPageNumberPosition(event.target.value)}
+                        className="w-full h-10 px-3 rounded-xl bg-background border border-border text-sm disabled:opacity-50"
+                      >
+                        <option value="bottom-left">Bottom left</option>
+                        <option value="bottom-center">Bottom center</option>
+                        <option value="bottom-right">Bottom right</option>
+                        <option value="top-left">Top left</option>
+                        <option value="top-right">Top right</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
                       <label htmlFor="pdf-watermark" className="text-xs font-semibold text-muted-foreground">Watermark or signature text</label>
                       <input
                         id="pdf-watermark"
@@ -469,6 +514,51 @@ const PdfOrganizePage = () => {
                         className="w-full h-10 px-3 rounded-xl bg-background border border-border text-sm"
                       />
                     </div>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4 items-end pt-2 border-t border-border/60">
+                    <label className="space-y-1">
+                      <span className="block text-xs font-semibold text-muted-foreground">Image signature (PNG or JPG)</span>
+                      <input type="file" accept="image/png,image/jpeg" onChange={(event) => setSignatureFile(event.target.files?.[0] || null)} className="block w-full text-xs text-muted-foreground file:mr-3 file:px-3 file:py-2 file:border-0 file:rounded-lg file:bg-primary/10 file:text-primary file:font-semibold" />
+                    </label>
+                    <label className="space-y-1">
+                      <span className="block text-xs font-semibold text-muted-foreground">Signature position</span>
+                      <select value={signaturePosition} disabled={!signatureFile} onChange={(event) => setSignaturePosition(event.target.value)} className="w-full h-10 px-3 rounded-xl bg-background border border-border text-sm disabled:opacity-50">
+                        <option value="bottom-right">Bottom right</option>
+                        <option value="bottom-left">Bottom left</option>
+                        <option value="top-right">Top right</option>
+                        <option value="top-left">Top left</option>
+                      </select>
+                    </label>
+                  </div>
+                  {signatureFile && <p className="text-xs text-muted-foreground">{signatureFile.name} will be added to every exported page.</p>}
+                </Card>
+
+                <Card className="p-4 sm:p-5 bg-card border-border space-y-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-foreground">Page tools</h4>
+                    <p className="text-xs text-muted-foreground">Add a blank sheet or crop equal white margins from every original page.</p>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="flex gap-2 items-end">
+                      <label className="flex-1 space-y-1">
+                        <span className="block text-xs font-semibold text-muted-foreground">Blank page size</span>
+                        <select value={blankPageSize} onChange={(event) => setBlankPageSize(event.target.value)} className="w-full h-10 px-3 rounded-xl bg-background border border-border text-sm">
+                          <option value="a4">A4</option>
+                          <option value="letter">US Letter</option>
+                          <option value="a5">A5</option>
+                        </select>
+                      </label>
+                      <Button type="button" variant="outline" onClick={handleAddBlankPage} className="h-10">Add blank page</Button>
+                    </div>
+                    <label className="space-y-1">
+                      <span className="block text-xs font-semibold text-muted-foreground">Crop equal margins</span>
+                      <select value={cropMargin} onChange={(event) => setCropMargin(event.target.value)} className="w-full h-10 px-3 rounded-xl bg-background border border-border text-sm">
+                        <option value="0">Keep full page</option>
+                        <option value="14">Small crop (5 mm)</option>
+                        <option value="28">Medium crop (10 mm)</option>
+                        <option value="42">Large crop (15 mm)</option>
+                      </select>
+                    </label>
                   </div>
                 </Card>
 
@@ -493,13 +583,17 @@ const PdfOrganizePage = () => {
                         aria-label={`Drag page ${idx + 1} to reorder`}
                         className="relative aspect-[3/4] bg-muted/40 rounded-xl overflow-hidden flex items-center justify-center p-2 cursor-grab active:cursor-grabbing"
                       >
-                        <img
-                          src={p.url}
-                          alt={`Page ${idx + 1}`}
-                          draggable={false}
-                          style={{ transform: `rotate(${p.rotation || 0}deg)` }}
-                          className="max-w-full max-h-full object-contain transition-transform duration-300 drop-shadow-md select-none pointer-events-none"
-                        />
+                        {p.isBlank ? (
+                          <div className="h-full w-full bg-white border border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center text-xs font-semibold text-muted-foreground">Blank page</div>
+                        ) : (
+                          <img
+                            src={p.url}
+                            alt={`Page ${idx + 1}`}
+                            draggable={false}
+                            style={{ transform: `rotate(${p.rotation || 0}deg)` }}
+                            className="max-w-full max-h-full object-contain transition-transform duration-300 drop-shadow-md select-none pointer-events-none"
+                          />
+                        )}
                         <div className="absolute bottom-2 right-2 p-1 rounded-md bg-background/85 text-muted-foreground border border-border/70 pointer-events-none">
                           <GripVertical className="w-3.5 h-3.5" />
                         </div>

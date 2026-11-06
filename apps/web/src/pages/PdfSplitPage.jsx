@@ -105,6 +105,8 @@ const PdfSplitPage = () => {
   const [pageCount, setPageCount] = useState(0);
   const [splitMode, setSplitMode] = useState('extract'); // 'extract' (ranges) or 'split-all'
   const [rangeInput, setRangeInput] = useState('');
+  const [rangeStart, setRangeStart] = useState(1);
+  const [rangeEnd, setRangeEnd] = useState(1);
   const [selectedPages, setSelectedPages] = useState([]); // 1-indexed page numbers
   const [thumbnails, setThumbnails] = useState([]);
   const [loadingThumbs, setLoadingThumbs] = useState(false);
@@ -147,6 +149,11 @@ const PdfSplitPage = () => {
     } catch (e) {
       // Keep input, but don't update highlights on invalid input
     }
+  };
+
+  const applyRangeShortcut = (value) => {
+    if (!pageCount) return;
+    handleRangeChange(value);
   };
 
   // Toggle selection on thumbnail click (memoized to prevent child re-renders)
@@ -192,6 +199,8 @@ const PdfSplitPage = () => {
       const pdf = await loadingTask.promise;
       const totalPages = pdf.numPages;
       setPageCount(totalPages);
+      setRangeStart(1);
+      setRangeEnd(totalPages);
       
       // Default to select all pages
       const allPages = Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -337,6 +346,8 @@ const PdfSplitPage = () => {
     setThumbnails([]);
     setSelectedPages([]);
     setRangeInput('');
+    setRangeStart(1);
+    setRangeEnd(1);
     setProgress(0);
     setError('');
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -646,6 +657,32 @@ const PdfSplitPage = () => {
                           <p className="text-xs text-muted-foreground">
                             Type custom page numbers or ranges, or select pages interactively from the grid below.
                           </p>
+                        </div>
+
+                        <div className="rounded-2xl border border-border bg-muted/20 p-4 space-y-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-sm font-semibold text-foreground">Quick page selection</span>
+                            <span className="text-xs text-muted-foreground">Document has {pageCount} pages</span>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <Button type="button" variant="outline" size="sm" onClick={() => applyRangeShortcut('1')}>First page</Button>
+                            <Button type="button" variant="outline" size="sm" onClick={() => applyRangeShortcut(String(pageCount))}>Last page</Button>
+                            <Button type="button" variant="outline" size="sm" onClick={() => applyRangeShortcut(`1-${pageCount}`)}>All pages</Button>
+                            <Button type="button" variant="outline" size="sm" onClick={() => applyRangeShortcut('')}>Clear selection</Button>
+                            <Button type="button" variant="outline" size="sm" onClick={() => applyRangeShortcut(Array.from({ length: pageCount }, (_, i) => i + 1).filter((page) => page % 2 === 1).join(','))}>Odd pages</Button>
+                            <Button type="button" variant="outline" size="sm" onClick={() => applyRangeShortcut(Array.from({ length: pageCount }, (_, i) => i + 1).filter((page) => page % 2 === 0).join(','))}>Even pages</Button>
+                            <Button type="button" variant="outline" size="sm" onClick={() => applyRangeShortcut(`${rangeStart}-${pageCount}`)}>From page to end</Button>
+                            <Button type="button" variant="outline" size="sm" onClick={() => applyRangeShortcut(`1-${rangeEnd}`)}>From start to page</Button>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
+                            <label className="text-xs text-muted-foreground">From page
+                              <input type="number" min="1" max={pageCount} value={rangeStart} onChange={(event) => setRangeStart(Math.min(pageCount, Math.max(1, Number(event.target.value) || 1)))} className="mt-1 w-full h-9 px-2 rounded-lg bg-card border border-border text-foreground" />
+                            </label>
+                            <label className="text-xs text-muted-foreground">To page
+                              <input type="number" min="1" max={pageCount} value={rangeEnd} onChange={(event) => setRangeEnd(Math.min(pageCount, Math.max(1, Number(event.target.value) || 1)))} className="mt-1 w-full h-9 px-2 rounded-lg bg-card border border-border text-foreground" />
+                            </label>
+                            <Button type="button" variant="default" size="sm" onClick={() => applyRangeShortcut(`${rangeStart}-${rangeEnd}`)} className="h-9">Select range</Button>
+                          </div>
                         </div>
 
                         {/* Interactive preview grid */}

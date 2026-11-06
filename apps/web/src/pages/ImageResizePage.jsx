@@ -42,6 +42,11 @@ const CROP_PRESETS = [
   { name: 'Photo 3:2', ratio: 3 / 2 },
 ];
 
+const PASSPORT_PRESETS = [
+  { name: '35 × 45 mm', width: 35, height: 45 },
+  { name: '2 × 2 in', width: 50.8, height: 50.8 },
+];
+
 const MM_PER_INCH = 25.4;
 const mmToPx = (millimetres, dpi) => Math.max(1, Math.round((millimetres / MM_PER_INCH) * dpi));
 const pxToMm = (pixels, dpi) => Number(((pixels / dpi) * MM_PER_INCH).toFixed(2));
@@ -180,6 +185,15 @@ const ImageResizePage = () => {
     setFitMode('cover');
     setCropPreset(preset.name);
     toast.success(`${preset.name} crop applied`);
+  };
+
+  const handlePassportPreset = (preset) => {
+    setDimensionUnit('mm');
+    setTargetWidth(mmToPx(preset.width, dpi));
+    setTargetHeight(mmToPx(preset.height, dpi));
+    setFitMode('cover');
+    setCropPreset(preset.name);
+    toast.success(`${preset.name} passport photo frame applied`);
   };
 
   const handleResize = async () => {
@@ -663,6 +677,18 @@ const ImageResizePage = () => {
                             {flipVertical && 'Mirrored vertically'}
                           </p>
                         )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <span className="block text-xs font-semibold text-muted-foreground">Passport photo frames</span>
+                        <div className="flex flex-wrap gap-2">
+                          {PASSPORT_PRESETS.map((preset) => (
+                            <Button key={preset.name} type="button" variant="outline" size="sm" onClick={() => handlePassportPreset(preset)} className="rounded-lg text-xs">
+                              {preset.name}
+                            </Button>
+                          ))}
+                        </div>
+                        <p className="text-xs text-muted-foreground">Uses mm at your selected DPI and crops the image to fill the official frame.</p>
                       </div>
 
                       {outputFormat === 'image/jpeg' && (

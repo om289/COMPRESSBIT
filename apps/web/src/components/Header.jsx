@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, FileText, ChevronDown, Image as ImageIcon, LayoutDashboard, Layers, Lock, Scissors, Sun, Moon, BookOpen, RotateCw, Maximize2 } from 'lucide-react';
+import { Menu, X, FileText, ChevronDown, Image as ImageIcon, LayoutDashboard, Layers, Lock, Scissors, Sun, Moon, BookOpen, RotateCw, Maximize2, Wrench } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
@@ -24,6 +24,8 @@ const Header = () => {
         { name: 'Organize & Rotate PDF', path: '/pdf/organize', icon: RotateCw },
         { name: 'PDF to Image', path: '/pdf/to-image', icon: ImageIcon },
         { name: 'Protect PDF', path: '/pdf/protect', icon: Lock },
+        { name: 'OCR Scan to Text', path: '/ocr', icon: FileText },
+        { name: 'Fill PDF Forms', path: '/pdf/fill', icon: FileText },
       ]
     },
     {
@@ -37,6 +39,9 @@ const Header = () => {
       ]
     },
     { name: 'File Encryptor', path: '/encrypt', icon: Lock },
+    { name: 'Daily Tools', path: '/tools', icon: Wrench },
+    { name: 'OCR Scan to Text', path: '/ocr', icon: FileText },
+    { name: 'Fill PDF Forms', path: '/pdf/fill', icon: FileText },
     { name: 'Blog', path: '/blog', icon: BookOpen },
   ];
 
@@ -54,6 +59,7 @@ const Header = () => {
     { name: 'Image to PDF', path: '/image/to-pdf', icon: FileText },
     { name: 'Convert Image', path: '/image/convert', icon: Layers },
     { name: 'File Encryptor', path: '/encrypt', icon: Lock },
+    { name: 'Daily Tools', path: '/tools', icon: Wrench },
     { name: 'Blog', path: '/blog', icon: BookOpen },
   ];
 
