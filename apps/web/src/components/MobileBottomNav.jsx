@@ -14,12 +14,12 @@ export const MobileBottomNav = () => {
     },
     {
       label: 'PDF Tools',
-      path: '/pdf',
+      path: '/pdf-tools',
       icon: FileText,
     },
     {
       label: 'Image Tools',
-      path: '/image',
+      path: '/image-tools',
       icon: ImageIcon,
     },
     {
@@ -36,6 +36,10 @@ export const MobileBottomNav = () => {
         const isActive =
           item.path === '/'
             ? location.pathname === '/'
+            : item.path === '/pdf-tools'
+            ? location.pathname === '/pdf-tools' || location.pathname.startsWith('/pdf')
+            : item.path === '/image-tools'
+            ? location.pathname === '/image-tools' || location.pathname.startsWith('/image')
             : location.pathname.startsWith(item.path);
 
         return (

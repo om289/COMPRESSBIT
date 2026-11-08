@@ -22,8 +22,8 @@ const NotFoundPage = () => (
           <Link to="/" className="inline-flex items-center gap-2 mt-8 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"><Home className="w-4 h-4" />Go to home</Link>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-14 text-left">
             {[
-              { to: '/pdf', label: 'PDF tools', text: 'Compress, merge, split, organise, and protect PDFs.', icon: FileText },
-              { to: '/image', label: 'Image tools', text: 'Compress, resize, convert, or turn images into PDFs.', icon: ImageIcon },
+              { to: '/pdf-tools', label: 'PDF tools', text: 'Compress, merge, split, organise, and protect PDFs.', icon: FileText },
+              { to: '/image-tools', label: 'Image tools', text: 'Compress, resize, convert, or turn images into PDFs.', icon: ImageIcon },
               { to: '/blog', label: 'Guides', text: 'Read practical resources on files, privacy, and formats.', icon: BookOpen },
               { to: '/contact', label: 'Support', text: 'Report a problem or suggest an improvement.', icon: MessageCircle }
             ].map(({ to, label, text, icon: Icon }) => <Link key={to} to={to} className="group"><Card className="p-5 h-full bg-card border-border hover:border-primary/50 transition-colors"><Icon className="w-6 h-6 text-primary mb-4" /><h2 className="font-bold group-hover:text-primary transition-colors">{label}</h2><p className="text-xs text-muted-foreground leading-relaxed mt-2">{text}</p><span className="inline-flex items-center gap-1 text-xs font-semibold text-primary mt-4">Explore <ArrowLeft className="w-3.5 h-3.5 rotate-180" /></span></Card></Link>)}

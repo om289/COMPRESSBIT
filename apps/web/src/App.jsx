@@ -15,10 +15,12 @@ const PdfSplitPage = lazy(() => import('./pages/PdfSplitPage.jsx'));
 const PdfToImagePage = lazy(() => import('./pages/PdfToImagePage.jsx'));
 const PdfProtectPage = lazy(() => import('./pages/PdfProtectPage.jsx'));
 const PdfOrganizePage = lazy(() => import('./pages/PdfOrganizePage.jsx'));
+const PdfToolsPage = lazy(() => import('./pages/PdfToolsPage.jsx'));
 const ImageCompressPage = lazy(() => import('./pages/ImageCompressPage.jsx'));
 const ImageResizePage = lazy(() => import('./pages/ImageResizePage.jsx'));
 const ImageToPdfPage = lazy(() => import('./pages/ImageToPdfPage.jsx'));
 const ImageConvertPage = lazy(() => import('./pages/ImageConvertPage.jsx'));
+const ImageToolsPage = lazy(() => import('./pages/ImageToolsPage.jsx'));
 const FileEncryptPage = lazy(() => import('./pages/FileEncryptPage.jsx'));
 const DailyToolsPage = lazy(() => import('./pages/DailyToolsPage.jsx'));
 const OcrPage = lazy(() => import('./pages/OcrPage.jsx'));
@@ -61,13 +63,19 @@ function App() {
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<DashboardPage />} />
+              <Route path="/pdf-tools" element={<PdfToolsPage />} />
+              <Route path="/pdf/tools" element={<PdfToolsPage />} />
               <Route path="/pdf" element={<PdfCompressPage />} />
+              <Route path="/pdf/compress" element={<PdfCompressPage />} />
               <Route path="/pdf/merge" element={<PdfMergePage />} />
               <Route path="/pdf/split" element={<PdfSplitPage />} />
               <Route path="/pdf/to-image" element={<PdfToImagePage />} />
               <Route path="/pdf/protect" element={<PdfProtectPage />} />
               <Route path="/pdf/organize" element={<PdfOrganizePage />} />
+              <Route path="/image-tools" element={<ImageToolsPage />} />
+              <Route path="/image/tools" element={<ImageToolsPage />} />
               <Route path="/image" element={<ImageCompressPage />} />
+              <Route path="/image/compress" element={<ImageCompressPage />} />
               <Route path="/images" element={<ImageCompressPage />} />
               <Route path="/png" element={<ImageCompressPage />} />
               <Route path="/jpg" element={<ImageCompressPage />} />

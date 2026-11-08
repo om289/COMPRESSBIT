@@ -16,7 +16,7 @@ const Header = () => {
     { name: 'Home', path: '/', icon: LayoutDashboard },
     {
       name: 'PDF Tools',
-      path: '/pdf',
+      path: '/pdf-tools',
       icon: FileText,
       submenu: [
         { name: 'Compress PDF', path: '/pdf', icon: FileText },
@@ -31,7 +31,7 @@ const Header = () => {
     },
     {
       name: 'Image Tools',
-      path: '/image',
+      path: '/image-tools',
       icon: ImageIcon,
       submenu: [
         { name: 'Compress Image', path: '/image', icon: ImageIcon },
@@ -50,12 +50,14 @@ const Header = () => {
   // Mobile flat list
   const mobileLinks = [
     { name: 'Home', path: '/', icon: LayoutDashboard },
+    { name: 'All PDF Tools', path: '/pdf-tools', icon: FileText },
     { name: 'Compress PDF', path: '/pdf', icon: FileText },
     { name: 'Merge PDF', path: '/pdf/merge', icon: Layers },
     { name: 'Split PDF', path: '/pdf/split', icon: Scissors },
     { name: 'Organize & Rotate PDF', path: '/pdf/organize', icon: RotateCw },
     { name: 'PDF to Image', path: '/pdf/to-image', icon: ImageIcon },
     { name: 'Protect PDF', path: '/pdf/protect', icon: Lock },
+    { name: 'All Image Tools', path: '/image-tools', icon: ImageIcon },
     { name: 'Compress Image', path: '/image', icon: ImageIcon },
     { name: 'Resize Image', path: '/image/resize', icon: Maximize2 },
     { name: 'Image to PDF', path: '/image/to-pdf', icon: FileText },
