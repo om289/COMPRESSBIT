@@ -16,6 +16,7 @@ const Header = () => {
     { name: 'Home', path: '/', icon: LayoutDashboard },
     {
       name: 'PDF Tools',
+      path: '/pdf',
       icon: FileText,
       submenu: [
         { name: 'Compress PDF', path: '/pdf', icon: FileText },
@@ -30,6 +31,7 @@ const Header = () => {
     },
     {
       name: 'Image Tools',
+      path: '/image',
       icon: ImageIcon,
       submenu: [
         { name: 'Compress Image', path: '/image', icon: ImageIcon },
@@ -83,7 +85,7 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-2">
             {navLinks.map((link) => {
               if (link.submenu) {
-                const isSubActive = link.submenu.some(sub => location.pathname === sub.path);
+                const isSubActive = location.pathname === link.path || link.submenu.some(sub => location.pathname === sub.path);
                 return (
                   <div
                     key={link.name}
@@ -91,7 +93,9 @@ const Header = () => {
                     onMouseEnter={() => setOpenDropdown(link.name)}
                     onMouseLeave={() => setOpenDropdown(null)}
                   >
-                    <button
+                    <Link
+                      to={link.path}
+                      onClick={() => setOpenDropdown(null)}
                       className={`px-4 py-2 text-sm font-medium rounded-lg flex items-center gap-1.5 transition-colors duration-200 ${
                         isSubActive
                           ? 'text-primary bg-primary/10 font-semibold'
@@ -103,7 +107,7 @@ const Header = () => {
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${
                         openDropdown === link.name ? 'rotate-180' : ''
                       }`} />
-                    </button>
+                    </Link>
                     
                     <AnimatePresence>
                       {openDropdown === link.name && (
@@ -124,6 +128,7 @@ const Header = () => {
                               >
                                 <Link
                                   to={sub.path}
+                                  onClick={() => setOpenDropdown(null)}
                                   className={`flex items-center gap-2.5 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
                                     isSubActive
                                       ? 'text-primary bg-primary/10 font-semibold'
